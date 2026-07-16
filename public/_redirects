@@ -1,0 +1,6 @@
+# Convenience rewrites: bare paths → static JSON files (SPA-style 200 rewrite)
+/api/v1/health    /api/v1/health.json    200
+/api/v1/project   /api/v1/project.json   200
+/api/v1/stack     /api/v1/stack.json     200
+/api/v1/phases    /api/v1/phases.json    200
+/api/v1/endpoints /api/v1/endpoints.json 200

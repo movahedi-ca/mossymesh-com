@@ -1,0 +1,19 @@
+{
+  "name": "mossymesh-com",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Official website for MossyMesh — mossymesh.com",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=mossymesh-com",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0",
+    "wrangler": "^4.14.0"
+  }
+}
