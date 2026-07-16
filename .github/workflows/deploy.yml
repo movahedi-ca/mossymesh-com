@@ -93,4 +93,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Manual only. Prefer Cloudflare Pages Git integration with EMPTY deploy command.
           command: pages deploy dist --project-name=mossymesh-com

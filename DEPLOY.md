@@ -7,6 +7,76 @@ This guide covers production deploy, custom domain DNS, CORS headers for `/api/*
 
 ---
 
+## STOP — if you see this in Cloudflare build logs
+
+```text
+/opt/buildhome/.config/.wrangler/logs/...
+Authentication error [code: 10000]
+Failed: error occurred while running deploy command
+CLOUDFLARE_API_TOKEN environment variable
+Super Administrator - All Privileges
+```
+
+### What it means
+
+| Fact | Meaning |
+| --- | --- |
+| Path `/opt/buildhome/` | This is **Cloudflare’s build VM**, not your PC |
+| `CLOUDFLARE_API_TOKEN` | Wrangler is using an **API token**, not your Super Admin browser session |
+| Super Administrator | Your **user role** is fine — the **token** still may lack Pages write |
+| `running deploy command` | Project settings are running **Wrangler deploy** after the build (wrong for Git Pages) |
+
+**Being Super Admin does not fix a bad/missing token permission.** Tokens are separate from membership roles.
+
+### Fix (Cloudflare Dashboard) — do this first
+
+Open: **Workers & Pages** → **mossymesh-com** → **Settings** → **Builds & deployments**
+
+| Setting | Must be |
+| --- | --- |
+| **Framework preset** | **None** |
+| **Build command** | `npm run build` |
+| **Build output directory** | `dist` |
+| **Root directory** | `/` (empty / default) |
+| **Deploy command** | **LEAVE EMPTY** — delete `npm run deploy`, `npx wrangler …`, etc. |
+| **Non-production branch deploy command** | **LEAVE EMPTY** |
+
+Cloudflare Pages Git integration **already uploads `dist` for you**. Running Wrangler inside the build is a second deploy and needs a special token — that is what fails with **10000**.
+
+### Also remove these env vars from the Pages project (if set)
+
+**Settings → Environment variables** (Production + Preview):
+
+- Delete `CLOUDFLARE_API_TOKEN` if present  
+- Delete `CLOUDFLARE_ACCOUNT_ID` if you only added them for Wrangler  
+
+(You do **not** need them for a normal static Pages Git deploy.)
+
+### After changing settings
+
+1. **Save**
+2. **Deployments** → **Retry deployment** (or push a commit to `main`)
+3. Build log should end after `vite build` / uploading assets — **no** Wrangler “Authentication error”
+
+### Already live (direct upload)
+
+A successful CLI deploy is already at:
+
+- https://mossymesh-com.pages.dev  
+- Preview example: https://c3237eb2.mossymesh-com.pages.dev  
+
+Attach **mossymesh.com** under **Custom domains** once Git builds are green (or keep using the direct-upload deployment).
+
+### Optional: local deploy without tokens
+
+```powershell
+Remove-Item Env:CLOUDFLARE_API_TOKEN -ErrorAction SilentlyContinue
+npx wrangler login
+npm run deploy:local
+```
+
+---
+
 ## Architecture (what gets deployed)
 
 | Piece | Source | Served as |
@@ -49,7 +119,8 @@ Confirm `main` has the latest commit (including `wrangler.toml`, `public/_header
 | Project name | `mossymesh-com` |
 | Production branch | `main` |
 | Framework preset | **None** (or Vite if listed) |
-| Build command | `npm run build` |
+| Build command | `npm run build` **only** (never `npm run deploy` / never `wrangler`) |
+| Deploy command | **Empty** |
 | Build output directory | `dist` |
 | Root directory | `/` (leave default) |
 | Framework preset | **None** (not Next.js / not Workers-only) |
@@ -60,10 +131,13 @@ Confirm `main` has the latest commit (including `wrangler.toml`, `public/_header
 | --- | --- |
 | `NODE_VERSION` | `20` |
 
+Do **not** set `CLOUDFLARE_API_TOKEN` on the Pages project for Git builds.
+
 **Common Cloudflare build failures**
 
 | Error / symptom | Fix |
 | --- | --- |
+| `Failed: error occurred while running deploy command` + code **10000** | Clear **Deploy command**; remove API token env vars (see STOP section above) |
 | GitHub Action fails instantly, 0 jobs | Do not put `secrets.*` in workflow `if:` — fixed in `.github/workflows/deploy.yml` |
 | `npm ci` fails | Ensure `package-lock.json` is committed (it is) |
 | Wrong output directory | Must be `dist`, not `build` or `.` |
@@ -184,17 +258,13 @@ Browser opens → authorize the Cloudflare account that owns the Pages project.
 ```bash
 cd mossymesh-com
 npm install
-npm run build
-npx wrangler pages deploy dist --project-name=mossymesh-com
+# Ensure a bad CI token is not shadowing OAuth:
+#   unset CLOUDFLARE_API_TOKEN   (bash)
+#   Remove-Item Env:CLOUDFLARE_API_TOKEN  (PowerShell)
+npm run deploy:local
 ```
 
-Or one shot:
-
-```bash
-npm run deploy
-```
-
-(`package.json` script: `npm run build && wrangler pages deploy dist --project-name=mossymesh-com`)
+(`deploy:local` = `npm run build && wrangler pages deploy dist --project-name=mossymesh-com`)
 
 First CLI deploy may ask you to create the project if it does not exist yet — confirm name **`mossymesh-com`**.
 

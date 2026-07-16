@@ -1,3 +1,7 @@
+# Used only for LOCAL / CI wrangler uploads (npm run deploy:local).
+# Cloudflare Pages Git integration does NOT need wrangler in the build —
+# set Build command = "npm run build", Output directory = "dist", Deploy command = (empty).
+
 name = "mossymesh-com"
 compatibility_date = "2026-07-01"
 pages_build_output_dir = "dist"
