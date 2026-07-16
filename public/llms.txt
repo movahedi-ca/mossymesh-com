@@ -1,0 +1,61 @@
+# MossyMesh
+
+> Decentralized offline compute mesh. Phones, Raspberry Pis, PCs, and LoRa radios form a censorship-resistant, identity-routed grid with deterministic WASM jobs and a ≤10 MB edge ledger.
+
+Website: https://mossymesh.com
+Repository: https://github.com/movahedi-ca/MossyMesh
+OpenAPI: https://mossymesh.com/openapi.yaml
+API index: https://mossymesh.com/api/
+Machine-readable project: https://mossymesh.com/api/v1/project.json
+
+## Brand
+
+- Product brand: **MossyMesh** (domain mossymesh.com)
+- Chess PoC name: **MessyMash** (offline chess app proving cross-device determinism ~836 Mnps class)
+
+## SLAs
+
+- Active ledger on edge: ≤ 10 MB RAM
+- Unverifiable outputs: < 1%
+- Job timeout (unstable RF): < 5%
+- No centralized DNS / fixed IP / cloud DB as control plane
+- Capacity target: 100 RVCH/day per 20-node island, zero upstream internet
+
+## Architecture layers
+
+- Frontend: React/TS PWA, captive portal
+- Application: Rust, shakmaty, yrs
+- Sandbox: WAMR (wasm32-wasip1), WASI, fixed-block memory pools
+- Transport: reticulum-rs, lxmf-rs, Kademlia DHT, LoRa, BLE
+- Ledger: trie-db, IPLD/DAG-CBOR
+- Proofs: nova-snark (recursive ZK folding)
+- AI: SITF, Edge PagedAttention, Vulkan Compute
+
+## Roadmap phases
+
+1. Transport — offline Wi-Fi, captive portal, LoRa/Kademlia
+2. Sandbox — WAMR, 10 MB cap, MinRoot VDF job DIDs
+3. Consensus — trie ledger, SNARK proofs, CRDT island merge
+4. Logic — WASM chess engine, lxmf messaging, HTLC escrow
+5. Interop — OpenAPI gateway, TWAMM (2% max spread), liquidity bridge
+
+## Public JSON (site)
+
+- GET /api/v1/project.json
+- GET /api/v1/health.json
+- GET /api/v1/phases.json
+- GET /api/v1/stack.json
+
+## Gateway routes (mesh island, when online)
+
+- GET /api/v1/health
+- POST /api/v1/submit_job
+- GET|POST /api/v1/twamm
+- GET|POST /api/v1/liquidity
+- GET|POST /api/v1/gateway
+
+## Human pages
+
+- / — marketing
+- /developers.html — contribute & stack
+- /api.html — API overview

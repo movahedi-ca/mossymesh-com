@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Contribute to MossyMesh — Rust mesh monorepo, WASM sandbox, OpenAPI gateway. Stack table, clone steps, and API links."
+    />
+    <meta name="theme-color" content="#0a0d0c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://mossymesh.com/developers.html" />
+    <title>Developers — MossyMesh</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site-wrap">
+      <header class="site-header">
+        <div class="container nav">
+          <a class="brand" href="/">
+            <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+              <rect width="64" height="64" rx="14" fill="#0f1412" />
+              <circle cx="32" cy="32" r="5" fill="#5cba88" />
+              <circle cx="16" cy="18" r="3.5" fill="#3da36e" />
+              <circle cx="48" cy="18" r="3.5" fill="#3da36e" />
+              <path
+                d="M32 27V14.5M32 37v12.5M28 30L18 21M36 30l10-9"
+                stroke="#5cba88"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                fill="none"
+              />
+            </svg>
+            <span class="brand-text">Mossy<span>Mesh</span></span>
+          </a>
+          <button
+            class="nav-toggle"
+            type="button"
+            data-nav-toggle
+            aria-expanded="false"
+            aria-controls="site-nav"
+            aria-label="Open menu"
+          >
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+          </button>
+          <ul class="nav-links" id="site-nav" data-nav-links>
+            <li><a href="/">Home</a></li>
+            <li><a href="/developers.html">Developers</a></li>
+            <li><a href="/api.html">API</a></li>
+            <li>
+              <a
+                class="nav-github"
+                href="https://github.com/movahedi-ca/MossyMesh"
+                rel="noopener noreferrer"
+                target="_blank"
+                >GitHub</a
+              >
+            </li>
+          </ul>
+        </div>
+      </header>
+
+      <main id="main">
+        <header class="page-hero">
+          <div class="container">
+            <p class="eyebrow">Developers</p>
+            <h1>Build on MossyMesh</h1>
+            <p class="lead">
+              Rust monorepo, deterministic WASM jobs, identity-routed transport, and an OpenAPI
+              interop surface. Product brand is <strong style="color: var(--text)">MossyMesh</strong>;
+              the chess proof-of-concept is <strong style="color: var(--text)">MessyMash</strong>.
+            </p>
+            <div class="btn-row">
+              <a
+                class="btn btn-primary"
+                href="https://github.com/movahedi-ca/MossyMesh"
+                rel="noopener noreferrer"
+                target="_blank"
+                >Repository</a
+              >
+              <a class="btn btn-secondary" href="/openapi.yaml">OpenAPI</a>
+              <a class="btn btn-ghost" href="/api/v1/">API v1</a>
+            </div>
+          </div>
+        </header>
+
+        <div class="page-content">
+          <div class="container">
+            <section class="stack-block" aria-labelledby="contribute-title">
+              <div class="section-head">
+                <p class="eyebrow">Contribute</p>
+                <h2 id="contribute-title">How to get started</h2>
+                <p>
+                  Prefer small, SLA-preserving changes. Crypto or memory allocation changes need
+                  written proof that the ≤10&nbsp;MB ledger and &lt;1% unverifiable SLAs still hold.
+                </p>
+              </div>
+              <div class="steps">
+                <article class="step">
+                  <div class="step-num">1</div>
+                  <div>
+                    <h3>Clone &amp; explore</h3>
+                    <p>
+                      Start from
+                      <a
+                        href="https://github.com/movahedi-ca/MossyMesh"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        >github.com/movahedi-ca/MossyMesh</a
+                      >.
+                      Read <span class="mono">README.md</span>,
+                      <span class="mono">docs/sla-and-dod.md</span>, and
+                      <span class="mono">docs/interface-contracts.md</span>.
+                    </p>
+                    <pre class="code" style="margin-top: 0.75rem">git clone https://github.com/movahedi-ca/MossyMesh.git
+cd MossyMesh
+# Workspace crates: mesh-transport, sandbox, consensus, engine, interop, …</pre>
+                  </div>
+                </article>
+                <article class="step">
+                  <div class="step-num">2</div>
+                  <div>
+                    <h3>Pick a phase-aligned crate</h3>
+                    <p>
+                      Phase 1 transport modules, Phase 2 sandbox/VDF, Phase 3 ledger/CRDT, Phase 4
+                      engine/HTLC, Phase 5 OpenAPI gateway — sequential DoDs are documented in
+                      <span class="mono">docs/sla-and-dod.md</span>.
+                    </p>
+                  </div>
+                </article>
+                <article class="step">
+                  <div class="step-num">3</div>
+                  <div>
+                    <h3>Respect interface contracts</h3>
+                    <p>
+                      Cross-crate messages stay behind documented surfaces
+                      (<span class="mono">JobEnvelope</span>, <span class="mono">VdfProof</span>,
+                      <span class="mono">ExecutionResult</span>, …). Prefer mocks until the producer
+                      crate is ready; breaking changes need architect sign-off.
+                    </p>
+                  </div>
+                </article>
+                <article class="step">
+                  <div class="step-num">4</div>
+                  <div>
+                    <h3>Test &amp; open a PR</h3>
+                    <p>
+                      Run crate unit tests and any integration smoke paths. Link SLA impact if you
+                      touch memory limits, VDF, VRF assignment, or proof sizes. Use issues for design
+                      discussion when in doubt.
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="stack-block" aria-labelledby="stack-title">
+              <div class="section-head">
+                <p class="eyebrow">Stack</p>
+                <h2 id="stack-title">Technical layers</h2>
+              </div>
+              <div class="hw-table-wrap">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th>Layer</th>
+                      <th>Core technologies</th>
+                      <th>Guardrails</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Frontend</strong></td>
+                      <td>React, TypeScript, Vite, vite-plugin-pwa</td>
+                      <td>Offline PWA via captive portal; large asset transfers</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Application</strong></td>
+                      <td>Rust, shakmaty, shakmaty-syzygy, yrs</td>
+                      <td>Deterministic chess + CRDT merge</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Sandbox</strong></td>
+                      <td>WAMR (wasm32-wasip1), WASI</td>
+                      <td>10 MB MEM_LIMIT; fixed-block pools; static INT8</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Transport</strong></td>
+                      <td>reticulum-rs, lxmf-rs, Kademlia DHT</td>
+                      <td>Identity routing; LoRa / BLE light paths</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Ledger</strong></td>
+                      <td>trie-db, ipld-core, serde_ipld_dagcbor</td>
+                      <td>Compact DAG-CBOR; ≤10 MB active set</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Proofs</strong></td>
+                      <td>nova-snark</td>
+                      <td>Constant-size folding over Pallas/Vesta</td>
+                    </tr>
+                    <tr>
+                      <td><strong>AI</strong></td>
+                      <td>SITF, Edge PagedAttention, Vulkan</td>
+                      <td>Deterministic high-compute tiers</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Interop</strong></td>
+                      <td>OpenAPI gateway, HTLC, TWAMM</td>
+                      <td>2% max spread; online only when reconnected</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="stack-block" aria-labelledby="docs-title">
+              <div class="section-head">
+                <p class="eyebrow">Machine-readable docs</p>
+                <h2 id="docs-title">OpenAPI &amp; JSON API</h2>
+                <p>
+                  Marketing facts and gateway contracts are available without scraping HTML.
+                </p>
+              </div>
+              <div class="card-grid cols-2">
+                <article class="card">
+                  <h3>OpenAPI specification</h3>
+                  <p>
+                    Full public gateway surface for mesh interop (health, jobs, TWAMM, liquidity,
+                    gateway control).
+                  </p>
+                  <p class="mono" style="margin-top: 0.75rem">
+                    <a href="/openapi.yaml">/openapi.yaml</a>
+                  </p>
+                </article>
+                <article class="card">
+                  <h3>Versioned JSON under /api/v1/</h3>
+                  <p>
+                    Static CDN-friendly documents for project metadata, health, phases, and stack.
+                  </p>
+                  <p class="mono" style="margin-top: 0.75rem">
+                    <a href="/api/v1/">/api/v1/</a><br />
+                    <a href="/api/v1/project.json">/api/v1/project.json</a>
+                  </p>
+                </article>
+              </div>
+              <p class="note" style="margin-top: 1.25rem">
+                Human overview of endpoints lives on the
+                <a href="/api.html">API page</a>. CORS is intended as
+                <span class="mono">Access-Control-Allow-Origin: *</span> on
+                <span class="mono">/api/*</span>.
+              </p>
+            </section>
+
+            <section class="stack-block" aria-labelledby="quality-title">
+              <div class="section-head">
+                <p class="eyebrow">Quality protocol</p>
+                <h2 id="quality-title">What the mesh enforces</h2>
+              </div>
+              <div class="card-grid cols-2">
+                <article class="card">
+                  <h3>VRF assignment</h3>
+                  <p>
+                    3 primary + 2 standby workers; battery-curve and thermal-aware routing
+                    (deprioritize CPUs &gt;75°C).
+                  </p>
+                </article>
+                <article class="card">
+                  <h3>Free-rider prevention</h3>
+                  <p>
+                    Cryptographic hash chains of WASM execution traces prove computation, not mere
+                    forwarding.
+                  </p>
+                </article>
+                <article class="card">
+                  <h3>Hardware quarantine</h3>
+                  <p>
+                    Statistical anomaly detection; three fails → 1-hour diagnostic benchmark for
+                    silent decay.
+                  </p>
+                </article>
+                <article class="card">
+                  <h3>Sybil resistance</h3>
+                  <p>
+                    Memory-hard MinRoot VDF (x → x<sup>1/5</sup> mod p) gates ephemeral Job DIDs —
+                    parallel ASICs do not skip sequential work.
+                  </p>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container">
+          <div class="footer-grid">
+            <div class="footer-brand">
+              <a class="brand" href="/">
+                <span class="brand-text">Mossy<span>Mesh</span></span>
+              </a>
+              <p>
+                mossymesh.com — open-source decentralized offline compute. No centralized control
+                plane.
+              </p>
+            </div>
+            <div class="footer-col">
+              <h4>Site</h4>
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/developers.html">Developers</a></li>
+                <li><a href="/api.html">API</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Project</h4>
+              <ul>
+                <li>
+                  <a
+                    href="https://github.com/movahedi-ca/MossyMesh"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    >GitHub</a
+                  >
+                </li>
+                <li><a href="/openapi.yaml">OpenAPI</a></li>
+                <li><a href="/api/v1/project.json">project.json</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>© <span data-year>2026</span> MossyMesh · open source</span>
+            <span>No centralized DNS/IP/cloud DB control plane</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="MossyMesh public API — project JSON, health, phases, stack, and mesh interop OpenAPI gateway routes."
+    />
+    <meta name="theme-color" content="#0a0d0c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://mossymesh.com/api.html" />
+    <title>API — MossyMesh</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site-wrap">
+      <header class="site-header">
+        <div class="container nav">
+          <a class="brand" href="/">
+            <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+              <rect width="64" height="64" rx="14" fill="#0f1412" />
+              <circle cx="32" cy="32" r="5" fill="#5cba88" />
+              <circle cx="16" cy="18" r="3.5" fill="#3da36e" />
+              <circle cx="48" cy="18" r="3.5" fill="#3da36e" />
+              <path
+                d="M32 27V14.5M32 37v12.5M28 30L18 21M36 30l10-9"
+                stroke="#5cba88"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                fill="none"
+              />
+            </svg>
+            <span class="brand-text">Mossy<span>Mesh</span></span>
+          </a>
+          <button
+            class="nav-toggle"
+            type="button"
+            data-nav-toggle
+            aria-expanded="false"
+            aria-controls="site-nav"
+            aria-label="Open menu"
+          >
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+          </button>
+          <ul class="nav-links" id="site-nav" data-nav-links>
+            <li><a href="/">Home</a></li>
+            <li><a href="/developers.html">Developers</a></li>
+            <li><a href="/api.html">API</a></li>
+            <li>
+              <a
+                class="nav-github"
+                href="https://github.com/movahedi-ca/MossyMesh"
+                rel="noopener noreferrer"
+                target="_blank"
+                >GitHub</a
+              >
+            </li>
+          </ul>
+        </div>
+      </header>
+
+      <main id="main">
+        <header class="page-hero">
+          <div class="container">
+            <p class="eyebrow">API</p>
+            <h1>Public API surface</h1>
+            <p class="lead">
+              Stable, versioned JSON under <span class="mono">/api/v1/</span> for site metadata, plus
+              the mesh interop gateway documented in OpenAPI. This page loads
+              <span class="mono">/api/v1/project.json</span> live when available and falls back to a
+              static overview.
+            </p>
+            <div class="btn-row">
+              <a class="btn btn-primary" href="/api/v1/project.json">project.json</a>
+              <a class="btn btn-secondary" href="/openapi.yaml">openapi.yaml</a>
+              <a class="btn btn-ghost" href="/api/v1/">/api/v1/</a>
+            </div>
+          </div>
+        </header>
+
+        <div class="page-content">
+          <div class="container">
+            <div class="status-bar" data-api-status role="status" aria-live="polite">
+              <span class="status-dot" data-api-dot aria-hidden="true"></span>
+              <span data-api-status-text>Loading project metadata…</span>
+            </div>
+
+            <section class="stack-block" aria-labelledby="project-title">
+              <div class="section-head">
+                <p class="eyebrow">Live project</p>
+                <h2 id="project-title">Project metadata</h2>
+              </div>
+              <div class="card" data-project-meta>
+                <p class="muted">Fetching <span class="mono">/api/v1/project.json</span>…</p>
+              </div>
+            </section>
+
+            <section class="stack-block" aria-labelledby="endpoints-title">
+              <div class="section-head">
+                <p class="eyebrow">Endpoints</p>
+                <h2 id="endpoints-title">Human overview</h2>
+                <p>
+                  Site documents are static CDN JSON. Gateway routes activate on a mesh island when
+                  upstream internet is restored (Phase 5 interop).
+                </p>
+              </div>
+              <div data-endpoint-list>
+                <!-- Populated by src/api-page.ts -->
+              </div>
+            </section>
+
+            <section class="stack-block" aria-labelledby="site-api-title">
+              <div class="section-head">
+                <p class="eyebrow">Site JSON</p>
+                <h2 id="site-api-title">Expected documents under /api/v1/</h2>
+              </div>
+              <div class="card-grid cols-2">
+                <article class="card">
+                  <h3 class="mono">/api/v1/project.json</h3>
+                  <p>Name, version, description, SLAs, repository, OpenAPI path.</p>
+                </article>
+                <article class="card">
+                  <h3 class="mono">/api/v1/health.json</h3>
+                  <p>Liveness / status stub for the public surface.</p>
+                </article>
+                <article class="card">
+                  <h3 class="mono">/api/v1/phases.json</h3>
+                  <p>Roadmap phases 1–5 with focus and acceptance themes.</p>
+                </article>
+                <article class="card">
+                  <h3 class="mono">/api/v1/stack.json</h3>
+                  <p>Architecture layers and core technologies.</p>
+                </article>
+              </div>
+              <p class="note" style="margin-top: 1.25rem">
+                Spec file: <a href="/openapi.yaml"><span class="mono">/openapi.yaml</span></a>
+                (OpenAPI 3.x for interop gateway). Agent B owns the JSON and OpenAPI payloads under
+                <span class="mono">public/api/**</span> and <span class="mono">openapi/**</span>.
+              </p>
+            </section>
+
+            <section class="stack-block" aria-labelledby="gateway-title">
+              <div class="section-head">
+                <p class="eyebrow">Gateway (mesh)</p>
+                <h2 id="gateway-title">Interop routes (planned / island)</h2>
+                <p>
+                  From the MossyMesh interop OpenAPI: health, job submit, TWAMM (2% max spread),
+                  liquidity mining, and gateway control.
+                </p>
+              </div>
+              <div class="hw-table-wrap">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th>Method</th>
+                      <th>Path</th>
+                      <th>Summary</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="mono">GET</td>
+                      <td class="mono">/api/v1/health</td>
+                      <td>Mesh island health</td>
+                    </tr>
+                    <tr>
+                      <td class="mono">POST</td>
+                      <td class="mono">/api/v1/submit_job</td>
+                      <td>Submit compute job into DHT</td>
+                    </tr>
+                    <tr>
+                      <td class="mono">GET / POST</td>
+                      <td class="mono">/api/v1/twamm</td>
+                      <td>TWAMM book / order (≤2% spread)</td>
+                    </tr>
+                    <tr>
+                      <td class="mono">GET / POST</td>
+                      <td class="mono">/api/v1/liquidity</td>
+                      <td>Genesis mining status &amp; actions</td>
+                    </tr>
+                    <tr>
+                      <td class="mono">GET / POST</td>
+                      <td class="mono">/api/v1/gateway</td>
+                      <td>Reconnect, bridge, status</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="stack-block" aria-labelledby="raw-title">
+              <div class="section-head">
+                <p class="eyebrow">Raw</p>
+                <h2 id="raw-title">Resolved project payload</h2>
+              </div>
+              <pre class="code" data-project-json>{}</pre>
+            </section>
+
+            <section class="stack-block">
+              <div class="cta-band">
+                <h2>Integrate with confidence</h2>
+                <p>
+                  Prefer OpenAPI clients for gateway work and stable JSON for marketing facts. Report
+                  contract issues on the product repository.
+                </p>
+                <div class="btn-row">
+                  <a
+                    class="btn btn-primary"
+                    href="https://github.com/movahedi-ca/MossyMesh"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    >GitHub</a
+                  >
+                  <a class="btn btn-secondary" href="/developers.html">Developers</a>
+                  <a class="btn btn-ghost" href="/openapi.yaml">OpenAPI</a>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container">
+          <div class="footer-grid">
+            <div class="footer-brand">
+              <a class="brand" href="/">
+                <span class="brand-text">Mossy<span>Mesh</span></span>
+              </a>
+              <p>
+                mossymesh.com — open-source decentralized offline compute. No centralized control
+                plane.
+              </p>
+            </div>
+            <div class="footer-col">
+              <h4>Site</h4>
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/developers.html">Developers</a></li>
+                <li><a href="/api.html">API</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>API</h4>
+              <ul>
+                <li><a href="/api/v1/project.json">project.json</a></li>
+                <li><a href="/openapi.yaml">openapi.yaml</a></li>
+                <li><a href="/llms.txt">llms.txt</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>© <span data-year>2026</span> MossyMesh · open source</span>
+            <span>CORS-ready /api/* · versioned /api/v1/</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/api-page.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="MossyMesh turns phones, Raspberry Pis, PCs, and LoRa radios into a decentralized offline compute mesh — censorship-resistant, identity-routed, deterministic WASM jobs, ≤10 MB edge ledger."
+    />
+    <meta name="theme-color" content="#0a0d0c" />
+    <meta property="og:title" content="MossyMesh — Decentralized Offline Compute Mesh" />
+    <meta
+      property="og:description"
+      content="Censorship-resistant edge mesh. Deterministic WASM. ≤10 MB ledger. Chess PoC proves cross-device state determinism."
+    />
+    <meta property="og:url" content="https://mossymesh.com/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://mossymesh.com/" />
+    <title>MossyMesh — Decentralized Offline Compute Mesh</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site-wrap">
+      <header class="site-header">
+        <div class="container nav">
+          <a class="brand" href="/">
+            <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+              <rect width="64" height="64" rx="14" fill="#0f1412" />
+              <circle cx="32" cy="32" r="5" fill="#5cba88" />
+              <circle cx="16" cy="18" r="3.5" fill="#3da36e" />
+              <circle cx="48" cy="18" r="3.5" fill="#3da36e" />
+              <circle cx="14" cy="42" r="3.5" fill="#3da36e" />
+              <circle cx="50" cy="42" r="3.5" fill="#3da36e" />
+              <path
+                d="M32 27V14.5M32 37v12.5M28 30L18 21M36 30l10-9M28 34L17 42M36 34l11 8"
+                stroke="#5cba88"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                fill="none"
+              />
+            </svg>
+            <span class="brand-text">Mossy<span>Mesh</span></span>
+          </a>
+          <button
+            class="nav-toggle"
+            type="button"
+            data-nav-toggle
+            aria-expanded="false"
+            aria-controls="site-nav"
+            aria-label="Open menu"
+          >
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+          </button>
+          <ul class="nav-links" id="site-nav" data-nav-links>
+            <li><a href="/">Home</a></li>
+            <li><a href="/developers.html">Developers</a></li>
+            <li><a href="/api.html">API</a></li>
+            <li>
+              <a
+                class="nav-github"
+                href="https://github.com/movahedi-ca/MossyMesh"
+                rel="noopener noreferrer"
+                target="_blank"
+                >GitHub</a
+              >
+            </li>
+          </ul>
+        </div>
+      </header>
+
+      <main id="main">
+        <section class="hero">
+          <div class="container hero-grid">
+            <div>
+              <div class="hero-badge">
+                <strong>Open source</strong>
+                No centralized control plane · mossymesh.com
+              </div>
+              <h1>
+                Offline compute that
+                <span class="accent">survives the mesh</span>
+              </h1>
+              <p class="lead">
+                MossyMesh turns phones, Raspberry Pis, PCs, and LoRa radios into a unified,
+                decentralized compute grid — independent of ISPs, public DNS, and cloud control
+                planes. Identity-routed. Deterministic WASM. A ≤10&nbsp;MB edge ledger.
+              </p>
+              <p class="muted">
+                Chess PoC <strong style="color: var(--text)">MessyMash</strong> proves perfect
+                state-transition determinism across heterogeneous hardware (~836&nbsp;Mnps class).
+              </p>
+              <div class="btn-row">
+                <a
+                  class="btn btn-primary"
+                  href="https://github.com/movahedi-ca/MossyMesh"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  >View on GitHub</a
+                >
+                <a class="btn btn-secondary" href="/developers.html">Developers</a>
+                <a class="btn btn-ghost" href="/api.html">API surface</a>
+              </div>
+            </div>
+            <aside class="hero-panel" aria-label="Mesh snapshot">
+              <div class="mesh-viz" aria-hidden="true">
+                <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#5cba88" stop-opacity="0.9" />
+                      <stop offset="100%" stop-color="#247049" stop-opacity="0.5" />
+                    </linearGradient>
+                  </defs>
+                  <g stroke="url(#g)" stroke-width="1.25" fill="none" opacity="0.85">
+                    <line x1="160" y1="140" x2="70" y2="70" />
+                    <line x1="160" y1="140" x2="250" y2="70" />
+                    <line x1="160" y1="140" x2="55" y2="190" />
+                    <line x1="160" y1="140" x2="265" y2="190" />
+                    <line x1="160" y1="140" x2="160" y2="40" />
+                    <line x1="160" y1="140" x2="160" y2="240" />
+                    <line x1="70" y1="70" x2="160" y2="40" />
+                    <line x1="250" y1="70" x2="160" y2="40" />
+                    <line x1="55" y1="190" x2="160" y2="240" />
+                    <line x1="265" y1="190" x2="160" y2="240" />
+                    <line x1="70" y1="70" x2="55" y2="190" />
+                    <line x1="250" y1="70" x2="265" y2="190" />
+                  </g>
+                  <g fill="#5cba88">
+                    <circle cx="160" cy="140" r="8" />
+                    <circle cx="70" cy="70" r="5.5" fill="#3da36e" />
+                    <circle cx="250" cy="70" r="5.5" fill="#3da36e" />
+                    <circle cx="55" cy="190" r="5.5" fill="#3da36e" />
+                    <circle cx="265" cy="190" r="5.5" fill="#3da36e" />
+                    <circle cx="160" cy="40" r="4.5" fill="#8fd4ad" />
+                    <circle cx="160" cy="240" r="4.5" fill="#8fd4ad" />
+                  </g>
+                  <text
+                    x="160"
+                    y="268"
+                    text-anchor="middle"
+                    fill="#6d8077"
+                    font-family="ui-monospace, monospace"
+                    font-size="11"
+                  >
+                    identity-routed · DHT · LoRa · BLE
+                  </text>
+                </svg>
+              </div>
+              <div class="hero-stats">
+                <div class="hero-stat">
+                  <strong>≤10 MB</strong>
+                  <span>Active ledger on edge</span>
+                </div>
+                <div class="hero-stat">
+                  <strong>&lt;1%</strong>
+                  <span>Unverifiable outputs</span>
+                </div>
+                <div class="hero-stat">
+                  <strong>&lt;5%</strong>
+                  <span>Job timeout (unstable RF)</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section" id="mission" aria-labelledby="mission-title">
+          <div class="container">
+            <div class="section-head">
+              <p class="eyebrow">Mission</p>
+              <h2 id="mission-title">A self-healing mesh for real-world islands</h2>
+              <p>
+                Build a serverless supercomputer from whatever hardware is on hand — completely
+                offline when needed, censorship-resistant by design, and open source end to end.
+              </p>
+            </div>
+            <div class="card-grid cols-3">
+              <article class="card">
+                <div class="icon" aria-hidden="true">ID</div>
+                <h3>Identity, not IP</h3>
+                <p>
+                  Reticulum-style routing and Kademlia DHT replace public DNS and fixed IPs for
+                  island traffic. Nodes are identities — not cloud addresses.
+                </p>
+              </article>
+              <article class="card">
+                <div class="icon" aria-hidden="true">ZK</div>
+                <h3>Bounded trust</h3>
+                <p>
+                  Deterministic WASM sandboxes, hash-chain execution traces, VRF triangulation, and
+                  recursive SNARK folding keep the edge ledger honest and small.
+                </p>
+              </article>
+              <article class="card">
+                <div class="icon" aria-hidden="true">RF</div>
+                <h3>Works offline</h3>
+                <p>
+                  Wi-Fi captive portals, LoRa, BLE, and sneakernet for heavy assets. Reconnect later
+                  to bridge liquidity via an OpenAPI gateway — no permanent upstream required.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="slas" aria-labelledby="sla-title">
+          <div class="container">
+            <div class="section-head center">
+              <p class="eyebrow">Strict SLAs</p>
+              <h2 id="sla-title">Constraints that shape every merge</h2>
+              <p>
+                Architectural changes to crypto or memory must prove they do not violate the edge
+                footprint or determinism guarantees.
+              </p>
+            </div>
+            <div class="card-grid cols-3">
+              <article class="card">
+                <p class="sla-value">≤10 MB</p>
+                <p class="sla-label">Edge ledger footprint</p>
+                <p>Active ledger RAM overhead hard-capped on edge devices (sandbox MEM_LIMIT).</p>
+              </article>
+              <article class="card">
+                <p class="sla-value">&lt;1%</p>
+                <p class="sla-label">Unverifiable outputs</p>
+                <p>Perfect cross-device determinism for AI/compute — re-exec and proof sampling.</p>
+              </article>
+              <article class="card">
+                <p class="sla-value">&lt;5%</p>
+                <p class="sla-label">Job timeout rate</p>
+                <p>Reliability target under highly unstable RF and physical environments.</p>
+              </article>
+            </div>
+            <p class="note" style="margin-top: 1.25rem">
+              Additional targets: <strong style="color: var(--text)">100 RVCH/day</strong> per
+              20-node island with zero upstream internet ·
+              <strong style="color: var(--text)">no</strong> sole public DNS / fixed-IP control plane
+              / cloud DB.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="architecture" aria-labelledby="arch-title">
+          <div class="container">
+            <div class="section-head">
+              <p class="eyebrow">Architecture</p>
+              <h2 id="arch-title">Layered stack with hard guardrails</h2>
+              <p>
+                Open-source integration over NIH — battle-tested crates behind strict memory and
+                determinism contracts.
+              </p>
+            </div>
+            <div class="arch-list">
+              <div class="arch-row">
+                <div class="arch-layer">Frontend</div>
+                <div class="arch-body">
+                  <h3>Offline-first PWA &amp; captive portal</h3>
+                  <p>Serves mesh UI on island Wi-Fi without upstream internet.</p>
+                  <div class="tech-pills">
+                    <span class="pill">React</span>
+                    <span class="pill">TypeScript</span>
+                    <span class="pill">Vite PWA</span>
+                    <span class="pill">nginx</span>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-row">
+                <div class="arch-layer">Logic</div>
+                <div class="arch-body">
+                  <h3>Application &amp; chess engine</h3>
+                  <p>Deterministic bitboard evaluation and CRDT document replication.</p>
+                  <div class="tech-pills">
+                    <span class="pill">Rust</span>
+                    <span class="pill">shakmaty</span>
+                    <span class="pill">yrs</span>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-row">
+                <div class="arch-layer">Sandbox</div>
+                <div class="arch-body">
+                  <h3>Bounded WASM execution</h3>
+                  <p>Fixed-block pools, static INT8 policy, 10&nbsp;MB guest heap hard fail.</p>
+                  <div class="tech-pills">
+                    <span class="pill">WAMR</span>
+                    <span class="pill">wasm32-wasip1</span>
+                    <span class="pill">WASI</span>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-row">
+                <div class="arch-layer">Transport</div>
+                <div class="arch-body">
+                  <h3>Identity-based mesh networking</h3>
+                  <p>Heavy paths via STUN-less hole punch; light via LoRa CSMA/CA &amp; BLE.</p>
+                  <div class="tech-pills">
+                    <span class="pill">reticulum-rs</span>
+                    <span class="pill">lxmf-rs</span>
+                    <span class="pill">Kademlia DHT</span>
+                    <span class="pill">LoRa / BLE</span>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-row">
+                <div class="arch-layer">Ledger</div>
+                <div class="arch-body">
+                  <h3>Compact consensus &amp; proofs</h3>
+                  <p>Merkle-Patricia active set; recursive ZK folding drops old history.</p>
+                  <div class="tech-pills">
+                    <span class="pill">trie-db</span>
+                    <span class="pill">IPLD / DAG-CBOR</span>
+                    <span class="pill">nova-snark</span>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-row">
+                <div class="arch-layer">AI tier</div>
+                <div class="arch-body">
+                  <h3>Deterministic high-compute</h3>
+                  <p>Standardized tensors, disk-mapped context, GPU compute for capable nodes.</p>
+                  <div class="tech-pills">
+                    <span class="pill">SITF</span>
+                    <span class="pill">PagedAttention</span>
+                    <span class="pill">Vulkan</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+          <div class="container">
+            <div class="section-head">
+              <p class="eyebrow">Roadmap</p>
+              <h2 id="roadmap-title">Phases 1–5</h2>
+              <p>Sequential critical path — transport first, interop last.</p>
+            </div>
+            <div class="roadmap">
+              <article class="phase">
+                <div class="phase-num">1</div>
+                <div>
+                  <h3>Transport</h3>
+                  <p>
+                    Offline Wi-Fi domains, captive portal redirection, reticulum-style daemon,
+                    smartphone → LoRa translation, Kademlia pathfinding to offline peers.
+                  </p>
+                  <span class="phase-meta">DoD: island packet routes without public DNS</span>
+                </div>
+              </article>
+              <article class="phase">
+                <div class="phase-num">2</div>
+                <div>
+                  <h3>Sandbox</h3>
+                  <p>
+                    WAMR/WASI deployment, fixed-block memory pools, MinRoot VDF for ephemeral Job
+                    DIDs (~10-minute sequential burn).
+                  </p>
+                  <span class="phase-meta">DoD: guest heap ≤10 MB; over-alloc → Err</span>
+                </div>
+              </article>
+              <article class="phase">
+                <div class="phase-num">3</div>
+                <div>
+                  <h3>Consensus</h3>
+                  <p>
+                    trie-db ledger, nova-snark folding, yrs/CRDT island merge with sub-megabyte
+                    verification proofs.
+                  </p>
+                  <span class="phase-meta">DoD: partitions converge to identical root</span>
+                </div>
+              </article>
+              <article class="phase">
+                <div class="phase-num">4</div>
+                <div>
+                  <h3>Logic</h3>
+                  <p>
+                    shakmaty → wasm32-wasip1, lxmf-rs messaging, HTLC escrow with VDF-delayed
+                    cancellation. Chess engine ~836&nbsp;Mnps class target.
+                  </p>
+                  <span class="phase-meta">DoD: WASM engine benchmarks + escrow paths</span>
+                </div>
+              </article>
+              <article class="phase">
+                <div class="phase-num">5</div>
+                <div>
+                  <h3>Interop</h3>
+                  <p>
+                    OpenAPI gateway on internet reconnect, TWAMM orchestration with a strict
+                    2% max-spread cap, retroactive AMM liquidity for genesis offline nodes.
+                  </p>
+                  <span class="phase-meta">DoD: local credits bridge to global AMM mock</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="poc" aria-labelledby="poc-title">
+          <div class="container">
+            <div class="section-head">
+              <p class="eyebrow">Proof of concept</p>
+              <h2 id="poc-title">MessyMash chess &amp; hardware baseline</h2>
+            </div>
+            <div class="feature-split">
+              <div class="feature-panel">
+                <h3>Chess PoC — MessyMash</h3>
+                <p>
+                  Offline-capable chess application using the shakmaty engine to stress-test perfect
+                  state-transition determinism across phones, Pis, and PCs.
+                </p>
+                <ul>
+                  <li>~836 Mnps class bitboard evaluation target</li>
+                  <li>WASM sandbox enforces identical guest behavior</li>
+                  <li>Hash-chain traces prove real computation</li>
+                  <li>Ideal job for heterogeneous mesh islands</li>
+                </ul>
+              </div>
+              <div class="feature-panel alt">
+                <h3>Hardware baseline (genesis island)</h3>
+                <p>Modest outlay — build a resilient island without a data center.</p>
+                <div class="hw-table-wrap" style="margin-top: 0.85rem">
+                  <table class="data">
+                    <thead>
+                      <tr>
+                        <th>Tier</th>
+                        <th>Qty</th>
+                        <th>Target</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Pi-tier</strong></td>
+                        <td>2</td>
+                        <td>Pi Zero 2 W / Pi 4 / 5</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Edge / IoT</strong></td>
+                        <td>3</td>
+                        <td>ESP32 + SX1262 LoRa</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Regional hub</strong></td>
+                        <td>1</td>
+                        <td>NVMe mini PC</td>
+                      </tr>
+                      <tr>
+                        <td><strong>RF gear</strong></td>
+                        <td>—</td>
+                        <td>Antennas, power, HF links</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="muted" style="margin-top: 0.85rem; font-size: 0.88rem">
+                  Rough hardware baseline ~$600–970 including tooling. Details in the product README.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="container">
+          <div class="cta-band" id="cta">
+            <h2>Build with the mesh</h2>
+            <p>
+              Source, issues, and architecture live on GitHub. Machine-readable project facts and
+              OpenAPI are published under <span class="mono">/api/v1/</span> and
+              <span class="mono">/openapi.yaml</span>.
+            </p>
+            <div class="btn-row">
+              <a
+                class="btn btn-primary"
+                href="https://github.com/movahedi-ca/MossyMesh"
+                rel="noopener noreferrer"
+                target="_blank"
+                >GitHub repository</a
+              >
+              <a class="btn btn-secondary" href="/developers.html">Contribute</a>
+              <a class="btn btn-ghost" href="/api.html">Explore API</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container">
+          <div class="footer-grid">
+            <div class="footer-brand">
+              <a class="brand" href="/">
+                <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" width="28" height="28">
+                  <rect width="64" height="64" rx="14" fill="#0f1412" />
+                  <circle cx="32" cy="32" r="5" fill="#5cba88" />
+                  <circle cx="16" cy="18" r="3.5" fill="#3da36e" />
+                  <circle cx="48" cy="18" r="3.5" fill="#3da36e" />
+                  <path
+                    d="M32 27V14.5M32 37v12.5M28 30L18 21M36 30l10-9"
+                    stroke="#5cba88"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    fill="none"
+                  />
+                </svg>
+                <span class="brand-text">Mossy<span>Mesh</span></span>
+              </a>
+              <p>
+                mossymesh.com — open-source decentralized offline compute. No centralized control
+                plane. Chess PoC: MessyMash.
+              </p>
+            </div>
+            <div class="footer-col">
+              <h4>Site</h4>
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/developers.html">Developers</a></li>
+                <li><a href="/api.html">API</a></li>
+                <li><a href="/llms.txt">llms.txt</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Project</h4>
+              <ul>
+                <li>
+                  <a
+                    href="https://github.com/movahedi-ca/MossyMesh"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    >GitHub</a
+                  >
+                </li>
+                <li><a href="/openapi.yaml">OpenAPI</a></li>
+                <li><a href="/api/v1/project.json">project.json</a></li>
+                <li><a href="/api/v1/">API v1 index</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>© <span data-year>2026</span> MossyMesh · open source</span>
+            <span>No centralized DNS/IP/cloud DB control plane</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
