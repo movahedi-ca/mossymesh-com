@@ -1,5 +1,9 @@
 import { defineConfig } from "vite";
-import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+// ESM-safe __dirname (package.json has "type": "module")
+const rootDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: ".",
@@ -9,9 +13,9 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, "index.html"),
-        developers: resolve(__dirname, "developers.html"),
-        api: resolve(__dirname, "api.html"),
+        main: resolve(rootDir, "index.html"),
+        developers: resolve(rootDir, "developers.html"),
+        api: resolve(rootDir, "api.html"),
       },
     },
   },

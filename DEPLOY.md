@@ -52,12 +52,22 @@ Confirm `main` has the latest commit (including `wrangler.toml`, `public/_header
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 | Root directory | `/` (leave default) |
+| Framework preset | **None** (not Next.js / not Workers-only) |
 
 **Environment variables** (Build):
 
 | Name | Value |
 | --- | --- |
 | `NODE_VERSION` | `20` |
+
+**Common Cloudflare build failures**
+
+| Error / symptom | Fix |
+| --- | --- |
+| GitHub Action fails instantly, 0 jobs | Do not put `secrets.*` in workflow `if:` — fixed in `.github/workflows/deploy.yml` |
+| `npm ci` fails | Ensure `package-lock.json` is committed (it is) |
+| Wrong output directory | Must be `dist`, not `build` or `.` |
+| Functions + rewrite clash on `/api/v1/health` | Health is a Pages Function; other `/api/v1/*` use `_redirects` |
 
 (Node 20+ is required. You can also set Node via `.nvmrc` if you add one later.)
 
