@@ -1,0 +1,62 @@
+{
+  "service": "mossymesh-com",
+  "description": "Architectural layers of the MossyMesh product (MessyMash blueprint).",
+  "layers": [
+    {
+      "id": "frontend",
+      "name": "Frontend Layer",
+      "technologies": ["React", "TypeScript", "Vite", "vite-plugin-pwa"],
+      "implementation": "Offline-first PWA via captive portal; nginx client_max_body_size 150M for asset transfers."
+    },
+    {
+      "id": "engine",
+      "name": "Application Logic / Engine",
+      "technologies": ["Rust", "shakmaty", "shakmaty-syzygy", "yrs"],
+      "implementation": "Core chess bitboard evaluation, memory-mapped endgame tablebases, YATA CRDT conflict-free replication. Deterministic WASM exports (evaluate_move, get_best_move)."
+    },
+    {
+      "id": "sandbox",
+      "name": "Execution Sandbox",
+      "technologies": ["WAMR", "wasm32-wasip1", "WASI"],
+      "implementation": "Symmetric static INT8 quantization, fixed-block memory pools via wasm_runtime_full_init. MEM_LIMIT = 10 MiB guest heap. Bounded aux stack."
+    },
+    {
+      "id": "transport",
+      "name": "Transport Layer",
+      "technologies": ["reticulum-rs", "lxmf-rs", "Kademlia DHT", "LoRa", "BLE", "Wi-Fi Direct"],
+      "implementation": "Identity-based routing (NodeId, not IP/DNS). STUN-less hole punching on heavy links; LoRa CSMA/CA & BLE on light links. VDF-gated JobIds; VRF worker assignment."
+    },
+    {
+      "id": "consensus",
+      "name": "Ledger Consensus",
+      "technologies": ["trie-db", "ipld-core", "serde_ipld_dagcbor"],
+      "implementation": "Incremental Merkle-Patricia Trie with compact DAG-CBOR and cryptographic pointers. Active ledger ≤ 10 MB on edge."
+    },
+    {
+      "id": "snark",
+      "name": "State Compression",
+      "technologies": ["nova-snark"],
+      "implementation": "Recursive ZK-SNARK folding over Pallas/Vesta. Constant-sized proofs so old ledger history can be dropped."
+    },
+    {
+      "id": "ai",
+      "name": "AI Processing",
+      "technologies": ["SITF", "Edge PagedAttention", "Vulkan Compute"],
+      "implementation": "Standardized tensor formats, disk-mapped context windows, deterministic GPU compute for high-compute tiers."
+    }
+  ],
+  "supporting": [
+    {
+      "id": "interop",
+      "name": "Interop Gateway",
+      "technologies": ["OpenAPI", "AsyncAPI", "HTLC", "TWAMM"],
+      "implementation": "When uplink exists: REST/WS bridge for jobs and liquidity. No cloud DB as sole backend."
+    },
+    {
+      "id": "governance",
+      "name": "Governance & Economy",
+      "technologies": ["WoT", "multisig", "ZK-blinded voting", "quadratic staking"],
+      "implementation": "Voucher-based onboarding; 3-of-5 admin multi-sig decays over 90 days."
+    }
+  ]
+}

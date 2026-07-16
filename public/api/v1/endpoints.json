@@ -1,0 +1,178 @@
+{
+  "service": "mossymesh-com",
+  "version": "1.0.0",
+  "note": "Catalog of public HTTP paths on mossymesh.com and planned mesh gateway routes. Static site meta lives as .json under /api/v1/; extensionless paths may be provided via redirects (Agent C) or Pages Functions.",
+  "openapi": "/openapi.yaml",
+  "site_pages": [
+    {
+      "path": "/",
+      "method": "GET",
+      "kind": "html",
+      "status": "planned_or_live",
+      "description": "Marketing landing — hero, mission, SLAs, phases, CTAs"
+    },
+    {
+      "path": "/developers.html",
+      "method": "GET",
+      "kind": "html",
+      "status": "planned_or_live",
+      "description": "Human developer docs linking to OpenAPI"
+    },
+    {
+      "path": "/api.html",
+      "method": "GET",
+      "kind": "html",
+      "status": "planned_or_live",
+      "description": "Human-readable API index"
+    },
+    {
+      "path": "/openapi.yaml",
+      "method": "GET",
+      "kind": "openapi",
+      "status": "implemented",
+      "description": "OpenAPI 3.1 document for site meta + planned mesh gateway"
+    }
+  ],
+  "site_meta_api": [
+    {
+      "path": "/api/index.json",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "API catalog linking all versioned endpoints"
+    },
+    {
+      "path": "/api/v1/health.json",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "Static CDN health (always ok when file is served)"
+    },
+    {
+      "path": "/api/v1/health",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "Live health via Cloudflare Pages Function (time_unix filled)"
+    },
+    {
+      "path": "/api/v1/project.json",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "Project name, mission, GitHub, SLAs, license, phase summary"
+    },
+    {
+      "path": "/api/v1/stack.json",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "Architectural layers (frontend through AI)"
+    },
+    {
+      "path": "/api/v1/phases.json",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "Phases 1–5 with focus and Definition of Done"
+    },
+    {
+      "path": "/api/v1/endpoints.json",
+      "method": "GET",
+      "kind": "json",
+      "status": "implemented",
+      "description": "This catalog"
+    }
+  ],
+  "mesh_gateway_planned": [
+    {
+      "path": "/api/v1/health",
+      "method": "GET",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Mesh island / node health (island status) — activates on local node or uplink gateway"
+    },
+    {
+      "path": "/api/v1/submit_job",
+      "method": "POST",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Submit JobEnvelope (+ VdfProof) into mesh transport / Kademlia"
+    },
+    {
+      "path": "/api/v1/jobs/{job_id}",
+      "method": "GET",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Job status / result poll by JobId (hex-encoded 32-byte id)"
+    },
+    {
+      "path": "/api/v1/game/state",
+      "method": "GET",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Chess FEN + moves (future)"
+    },
+    {
+      "path": "/api/v1/game/move",
+      "method": "POST",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Submit chess move; returns new FEN or error (future)"
+    },
+    {
+      "path": "/api/v1/sync",
+      "method": "GET",
+      "kind": "websocket",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "WebSocket ledger/game updates"
+    },
+    {
+      "path": "/api/v1/twamm",
+      "method": "GET",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "TWAMM book status (max spread 200 bps / 2%)"
+    },
+    {
+      "path": "/api/v1/twamm",
+      "method": "POST",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Submit/stream TWAMM order (enforces 2% max-spread cap)"
+    },
+    {
+      "path": "/api/v1/liquidity",
+      "method": "GET",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "Liquidity mining program status"
+    },
+    {
+      "path": "/api/v1/gateway",
+      "method": "GET",
+      "kind": "json",
+      "status": "planned",
+      "scope": "mesh_node",
+      "description": "OpenAPI gateway status (active after internet reconnect)"
+    }
+  ],
+  "well_known": [
+    {
+      "path": "/.well-known/api-catalog",
+      "method": "GET",
+      "kind": "linkset",
+      "status": "implemented",
+      "description": "RFC 9727-style API catalog linkset"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "name": "MossyMesh site API catalog",
+  "domain": "https://mossymesh.com",
+  "version": "1.0.0",
+  "openapi": "/openapi.yaml",
+  "description": "Machine-readable entry point for mossymesh.com public APIs. Site meta endpoints are static JSON served by CDN; mesh gateway routes are documented as planned in OpenAPI.",
+  "endpoints": [
+    {
+      "id": "health",
+      "href": "/api/v1/health.json",
+      "extensionless": "/api/v1/health",
+      "method": "GET",
+      "description": "Service health"
+    },
+    {
+      "id": "project",
+      "href": "/api/v1/project.json",
+      "method": "GET",
+      "description": "Project identity, mission, SLAs, license, phase summary"
+    },
+    {
+      "id": "stack",
+      "href": "/api/v1/stack.json",
+      "method": "GET",
+      "description": "Architectural layers"
+    },
+    {
+      "id": "phases",
+      "href": "/api/v1/phases.json",
+      "method": "GET",
+      "description": "Roadmap phases 1–5 with DoD"
+    },
+    {
+      "id": "endpoints",
+      "href": "/api/v1/endpoints.json",
+      "method": "GET",
+      "description": "Full HTTP path catalog (site + planned mesh gateway)"
+    }
+  ],
+  "links": {
+    "openapi": "/openapi.yaml",
+    "api_catalog_linkset": "/.well-known/api-catalog",
+    "human_api": "/api.html",
+    "developers": "/developers.html",
+    "product": "https://github.com/movahedi-ca/MossyMesh",
+    "site_repo": "https://github.com/movahedi-ca/mossymesh-com"
+  }
+}

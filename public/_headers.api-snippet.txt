@@ -1,0 +1,42 @@
+# Agent C — merge these into public/_headers (Cloudflare Pages)
+# Owner: Agent B (API surface) documents required CORS for /api/*
+# Do not treat this file as live config; only _headers is consumed by Pages.
+#
+# Goals:
+# - Access-Control-Allow-Origin: * on all machine-readable API paths
+# - Correct Content-Type for JSON and OpenAPI YAML
+# - Preflight friendly (OPTIONS is handled by the health Function; static paths
+#   still benefit from ACAO on GET responses)
+
+/api/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Accept, Authorization
+  Access-Control-Max-Age: 86400
+  Content-Type: application/json; charset=utf-8
+
+/api/v1/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Accept, Authorization
+  Access-Control-Max-Age: 86400
+
+/openapi.yaml
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Accept
+  Content-Type: application/yaml; charset=utf-8
+
+/.well-known/api-catalog
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Content-Type: application/linkset+json; charset=utf-8
+
+# Optional: extensionless aliases for static JSON (if using _redirects instead,
+# skip Content-Type here and let the target .json file dictate type).
+# Example _redirects lines for Agent C:
+#   /api/v1/project    /api/v1/project.json    302
+#   /api/v1/stack      /api/v1/stack.json      302
+#   /api/v1/phases     /api/v1/phases.json     302
+#   /api/v1/endpoints  /api/v1/endpoints.json  302
+# Note: /api/v1/health is served by functions/api/v1/health.ts (live time_unix).

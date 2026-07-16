@@ -1,0 +1,152 @@
+{
+  "service": "mossymesh-com",
+  "source": "MossyMesh docs/sla-and-dod.md + README roadmap",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Transport",
+      "focus": "Offline Wi-Fi domains, captive portal redirection, reticulum-style daemon, LoRa/BLE/Kademlia pathfinding.",
+      "deliverables": [
+        "Captive portal serves offline PWA (nginx body size ≥ 150M)",
+        "Identity-based routing without public DNS for island traffic",
+        "Smartphone test packet → translator → LoRa MAC framing",
+        "Kademlia pathfinding to offline node (sim acceptable)"
+      ],
+      "definition_of_done": [
+        {
+          "id": "P1-DoD-1",
+          "pass": "Test packet translates and routes via Kademlia to second offline peer (hw or sim)."
+        },
+        {
+          "id": "P1-DoD-2",
+          "pass": "Device joining Wi-Fi island gets portal UI without upstream Internet."
+        },
+        {
+          "id": "P1-DoD-3",
+          "pass": "No required cloud DB or public DNS for island routing."
+        },
+        {
+          "id": "P1-DoD-4",
+          "pass": "integration init path runs without panic (stub OK)."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Sandbox",
+      "focus": "WAMR/WASI environment, fixed-block pools, MinRoot VDF-gated ephemeral Job DIDs.",
+      "deliverables": [
+        "WAMR (or faithful stub) with bounded linear memory",
+        "Symmetric static INT8 policy hooks",
+        "Ephemeral Job DID gated by ~10-minute sequential VDF",
+        "allocate hard-fails past MEM_LIMIT with deterministic error"
+      ],
+      "definition_of_done": [
+        {
+          "id": "P2-DoD-1",
+          "pass": "Guest heap ≤ 10 MB; over-alloc → Err, not UB."
+        },
+        {
+          "id": "P2-DoD-2",
+          "pass": "Job DID requires successful MinRoot VDF verify."
+        },
+        {
+          "id": "P2-DoD-3",
+          "pass": "OOM and missing-export codes stable across nodes."
+        },
+        {
+          "id": "P2-DoD-4",
+          "pass": "Sandbox + VDF unit tests green; integration execute path returns stub bytes."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Consensus",
+      "focus": "trie-db ledger, nova-snark folding, yrs/CRDT island merge.",
+      "deliverables": [
+        "Incremental Merkle-Patricia (or equivalent) active ledger",
+        "Constant-size (or bounded sub-MB) edge verification proof",
+        "Deterministic merge of divergent islands",
+        "Active ledger size accounting vs SLA-RAM"
+      ],
+      "definition_of_done": [
+        {
+          "id": "P3-DoD-1",
+          "pass": "Peer verifies update via sub-megabyte constant/bounded proof."
+        },
+        {
+          "id": "P3-DoD-2",
+          "pass": "Two partitions converge to identical root after merge."
+        },
+        {
+          "id": "P3-DoD-3",
+          "pass": "Active ledger ≤ 10 MB under documented workload."
+        },
+        {
+          "id": "P3-DoD-4",
+          "pass": "insert → prove → verify round-trip in tests."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Logic",
+      "focus": "Compile shakmaty to wasm32-wasip1, mesh messaging, HTLC escrow with VDF-delayed cancellation.",
+      "deliverables": [
+        "Engine compiles to wasm32-wasip1 and loads in sandbox",
+        "Deterministic legal moves + evaluation",
+        "Mnps harness (~836 target on reference profile)",
+        "HTLC + VDF-delayed cancellation",
+        "Mesh messaging for job distribute / result collect"
+      ],
+      "definition_of_done": [
+        {
+          "id": "P4-DoD-1",
+          "pass": "Same FEN corpus → identical outputs on two hosts in sandbox."
+        },
+        {
+          "id": "P4-DoD-2",
+          "pass": "Benchmark ~836 Mnps on agreed profile (or justified gap)."
+        },
+        {
+          "id": "P4-DoD-3",
+          "pass": "Escrow open → work → claim/refund tested; VDF cancel enforced."
+        },
+        {
+          "id": "P4-DoD-4",
+          "pass": "Sampled re-exec mismatch < 1% on chess job corpus."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Interop",
+      "focus": "UI layout serving, AsyncAPI/OpenAPI endpoints, TWAMM orchestration on internet reconnect.",
+      "deliverables": [
+        "Stable AsyncAPI/OpenAPI submit/sync/health",
+        "Uplink gateway without abandoning island autonomy",
+        "TWAMM bridge with ≤ 2% max-spread",
+        "Frontend wired to host API for chess + network status"
+      ],
+      "definition_of_done": [
+        {
+          "id": "P5-DoD-1",
+          "pass": "With uplink, gateway serves; without, island APIs still work."
+        },
+        {
+          "id": "P5-DoD-2",
+          "pass": "Simulated trade path enforces max-spread ≤ 2%."
+        },
+        {
+          "id": "P5-DoD-3",
+          "pass": "Captive-portal chess works offline E2E against local host."
+        },
+        {
+          "id": "P5-DoD-4",
+          "pass": "SLA-RAM/DET/TO checks automated in CI smoke (even if simulated)."
+        }
+      ]
+    }
+  ]
+}

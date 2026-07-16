@@ -1,0 +1,886 @@
+openapi: 3.1.0
+info:
+  title: MossyMesh Public API
+  version: 1.0.0
+  summary: Site meta API (live) and planned mesh interop gateway
+  description: |
+    Public HTTP surface for **mossymesh.com**.
+
+    ## Site meta (implemented)
+    Static JSON under `/api/v1/*.json` served by CDN. Marketing facts are also
+    available as machine-readable resources. Optional Cloudflare Pages Function
+    provides live `GET /api/v1/health` with `time_unix`.
+
+    ## Mesh interop gateway (planned)
+    Documented from MossyMesh `docs/interface-contracts.md` and
+    `interop/openapi.yaml`. These routes activate on a local mesh node host or
+    when an island regains upstream and spins up the OpenAPI bridge.
+    Marked with `x-status: planned`.
+
+    CBOR preferred on mesh; JSON allowed on browser ↔ local gateway.
+  license:
+    name: Open source (see product repository LICENSE)
+    url: https://github.com/movahedi-ca/MossyMesh
+  contact:
+    name: MossyMesh
+    url: https://mossymesh.com
+  externalDocs:
+    description: Interface contracts (cross-crate)
+    url: https://github.com/movahedi-ca/MossyMesh/blob/main/docs/interface-contracts.md
+
+servers:
+  - url: https://mossymesh.com
+    description: Production site (static meta API + CDN)
+  - url: http://localhost:5173
+    description: Local Vite dev server
+
+tags:
+  - name: Site meta
+    description: Implemented static/live JSON about the project and this website
+  - name: Mesh gateway
+    description: Planned node / island interop routes (not served by the marketing CDN as a full mesh node)
+  - name: Mesh game
+    description: Planned chess PoC HTTP surface
+  - name: Mesh liquidity
+    description: Planned TWAMM / liquidity bridge when uplink exists
+
+paths:
+  /api/v1/health:
+    get:
+      tags: [Site meta]
+      operationId: siteHealth
+      summary: Site or node health
+      description: |
+        **Site (implemented):** Cloudflare Pages Function returns live JSON with
+        `time_unix`. Static fallback also available at `/api/v1/health.json`
+        (`time_unix` is null).
+
+        **Mesh node (planned):** Island status when talking to a local gateway
+        (`x-status` on mesh-specific response shapes).
+      parameters:
+        - name: scope
+          in: query
+          required: false
+          description: Optional hint; site ignores this today
+          schema:
+            type: string
+            enum: [site, node]
+      responses:
+        "200":
+          description: Health OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              examples:
+                site_static:
+                  summary: Static CDN file shape
+                  value:
+                    status: ok
+                    service: mossymesh-com
+                    version: "1.0.0"
+                    time_unix: null
+                site_live:
+                  summary: Pages Function
+                  value:
+                    status: ok
+                    service: mossymesh-com
+                    version: "1.0.0"
+                    time_unix: 1710000000
+                mesh_island:
+                  summary: Planned mesh island health
+                  value:
+                    status: ok
+                    service: mossymesh-node
+                    version: "0.1.0"
+                    time_unix: 1710000000
+                    island: active
+                    uplink: false
+
+  /api/v1/health.json:
+    get:
+      tags: [Site meta]
+      operationId: siteHealthJson
+      summary: Static site health (always ok when file is served)
+      description: |
+        Build-time / CDN static health. Always `status: ok` if the object is reachable.
+        `time_unix` is null for static artifacts.
+      responses:
+        "200":
+          description: Static health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/project:
+    get:
+      tags: [Site meta]
+      operationId: siteProjectExtensionless
+      summary: Project metadata (extensionless alias)
+      description: |
+        Prefer `/api/v1/project.json` today. Extensionless path may be provided
+        via redirect (Agent C) or future Function.
+      x-status: alias
+      responses:
+        "200":
+          description: Project metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectInfo"
+        "404":
+          description: Alias not configured; use .json path
+
+  /api/v1/project.json:
+    get:
+      tags: [Site meta]
+      operationId: siteProject
+      summary: Project name, mission, SLAs, license, phase summary
+      responses:
+        "200":
+          description: Project metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectInfo"
+
+  /api/v1/stack.json:
+    get:
+      tags: [Site meta]
+      operationId: siteStack
+      summary: Architectural layers
+      responses:
+        "200":
+          description: Stack layers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StackInfo"
+
+  /api/v1/phases.json:
+    get:
+      tags: [Site meta]
+      operationId: sitePhases
+      summary: Roadmap phases 1–5 with Definition of Done
+      responses:
+        "200":
+          description: Phases
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhasesInfo"
+
+  /api/v1/endpoints.json:
+    get:
+      tags: [Site meta]
+      operationId: siteEndpoints
+      summary: Catalog of public HTTP paths
+      responses:
+        "200":
+          description: Endpoint catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndpointsCatalog"
+
+  /api/index.json:
+    get:
+      tags: [Site meta]
+      operationId: siteApiIndex
+      summary: API catalog entry point
+      responses:
+        "200":
+          description: Links to versioned endpoints and OpenAPI
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /openapi.yaml:
+    get:
+      tags: [Site meta]
+      operationId: openApiDocument
+      summary: This OpenAPI 3.1 document
+      responses:
+        "200":
+          description: OpenAPI YAML
+          content:
+            application/yaml:
+              schema:
+                type: string
+            text/yaml:
+              schema:
+                type: string
+
+  /api/v1/submit_job:
+    post:
+      tags: [Mesh gateway]
+      operationId: submitJob
+      summary: Submit a compute job into the mesh
+      description: |
+        Accept a `JobEnvelope` with required `VdfProof` attachment.
+        Creating a new `JobId` without a verifiable VDF burn is rejected.
+        JSON on browser↔gateway; CBOR preferred on mesh.
+      x-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitJobRequest"
+            examples:
+              chess_eval:
+                summary: Evaluate a move (illustrative)
+                value:
+                  job:
+                    job_id: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+                    submitter: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                    payload_cid: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                    fn_name: evaluate_move
+                    args_b64: "AAECAw=="
+                    replicas: 5
+                    max_wall_ms: 60000
+                  vdf_proof:
+                    start_x: 1
+                    steps: 1000000
+                    final_x: 42
+                    modulus_id: 0
+      responses:
+        "200":
+          description: Job accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitJobResponse"
+        "400":
+          description: Invalid envelope or VDF proof failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "503":
+          description: Gateway dormant or mesh node unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/jobs/{job_id}:
+    get:
+      tags: [Mesh gateway]
+      operationId: getJobStatus
+      summary: Poll job status / result
+      description: Job status by 32-byte JobId (hex-encoded path param).
+      x-status: planned
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          description: Hex-encoded 32-byte Ephemeral Job DID
+          schema:
+            $ref: "#/components/schemas/Hex32"
+      responses:
+        "200":
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStatus"
+        "404":
+          description: Unknown job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/game/state:
+    get:
+      tags: [Mesh game]
+      operationId: gameState
+      summary: Chess FEN + moves
+      x-status: planned
+      responses:
+        "200":
+          description: Current game state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameState"
+
+  /api/v1/game/move:
+    post:
+      tags: [Mesh game]
+      operationId: gameMove
+      summary: Submit a chess move
+      x-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameMoveRequest"
+      responses:
+        "200":
+          description: New position
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameState"
+        "400":
+          description: Illegal move or bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/sync:
+    get:
+      tags: [Mesh gateway]
+      operationId: meshSyncWs
+      summary: WebSocket ledger/game updates
+      description: Upgrade to WebSocket for live sync (planned).
+      x-status: planned
+      responses:
+        "101":
+          description: Switching Protocols (WebSocket)
+        "426":
+          description: Upgrade required
+
+  /api/v1/twamm:
+    get:
+      tags: [Mesh liquidity]
+      operationId: twammStatus
+      summary: TWAMM book status (max spread 200 bps)
+      x-status: planned
+      responses:
+        "200":
+          description: Open TWAMM orders / book snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    post:
+      tags: [Mesh liquidity]
+      operationId: twammStream
+      summary: Submit / stream a TWAMM order
+      description: Enforces strict 2% (200 bps) max-spread cap.
+      x-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TwammOrder"
+      responses:
+        "200":
+          description: Fill or accept receipt
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Spread cap exceeded or bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/liquidity:
+    get:
+      tags: [Mesh liquidity]
+      operationId: liquidityStatus
+      summary: Liquidity mining program status
+      x-status: planned
+      responses:
+        "200":
+          description: Genesis mining aggregate status
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/gateway:
+    get:
+      tags: [Mesh gateway]
+      operationId: gatewayStatus
+      summary: OpenAPI gateway status (after internet reconnect)
+      x-status: planned
+      responses:
+        "200":
+          description: Gateway status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active:
+                    type: boolean
+                  internet_reconnected:
+                    type: boolean
+                additionalProperties: true
+        "503":
+          description: Gateway dormant
+
+components:
+  schemas:
+    Hex32:
+      type: string
+      description: |
+        32-byte value hex-encoded (64 hex chars). Used for NodeId, JobId,
+        ContentId, TraceHash, and similar fixed digests.
+      pattern: "^[0-9a-fA-F]{64}$"
+      minLength: 64
+      maxLength: 64
+      examples:
+        - "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+    NodeId:
+      allOf:
+        - $ref: "#/components/schemas/Hex32"
+      description: |
+        32-byte identity hash. Not an IP address and not a DNS name.
+        Logical type from interface contracts.
+
+    JobId:
+      allOf:
+        - $ref: "#/components/schemas/Hex32"
+      description: |
+        32-byte Ephemeral Job DID. Requires valid VDF proof attachment at creation.
+
+    ContentId:
+      allOf:
+        - $ref: "#/components/schemas/Hex32"
+      description: 32-byte content hash (IPLD-style).
+
+    TraceHash:
+      allOf:
+        - $ref: "#/components/schemas/Hex32"
+      description: 32-byte hash-chain link of WASM execution trace.
+
+    BytesBase64:
+      type: string
+      description: Opaque bytes, standard base64 (JSON transport). On mesh, prefer raw CBOR bytes.
+      contentEncoding: base64
+
+    VdfProof:
+      type: object
+      description: |
+        MinRoot VDF proof attachment for JobId admission.
+        Invariant: new JobId without verifiable VDF burn is rejected.
+        Field elements may be u64 stubs in early phases.
+      required: [start_x, steps, final_x, modulus_id]
+      properties:
+        start_x:
+          type: integer
+          format: int64
+          minimum: 0
+          description: MinRoot start (field element / u64 stub)
+        steps:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Sequential steps (~10 min wall in production)
+        final_x:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Claimed VDF output (field element / u64 stub)
+        modulus_id:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Parameter set / curve id
+
+    JobEnvelope:
+      type: object
+      description: |
+        Job submission envelope (interop → transport → sandbox).
+        `args` are opaque to transport; on JSON wire they are base64 as `args_b64`.
+      required:
+        - job_id
+        - submitter
+        - payload_cid
+        - fn_name
+        - args_b64
+        - replicas
+        - max_wall_ms
+      properties:
+        job_id:
+          $ref: "#/components/schemas/JobId"
+        submitter:
+          $ref: "#/components/schemas/NodeId"
+        payload_cid:
+          $ref: "#/components/schemas/ContentId"
+        fn_name:
+          type: string
+          description: Exported WASM symbol (e.g. evaluate_move, get_best_move)
+          examples:
+            - evaluate_move
+            - get_best_move
+        args_b64:
+          $ref: "#/components/schemas/BytesBase64"
+        replicas:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 255
+          description: Worker count (defaults often 3 primaries + 2 standbys = 5)
+          default: 5
+        max_wall_ms:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Wall-clock budget; contributes to <5% timeout SLA
+
+    VrfAssignment:
+      type: object
+      description: VRF worker assignment (3 primaries + 2 standbys)
+      x-status: planned
+      properties:
+        job_id:
+          $ref: "#/components/schemas/JobId"
+        seed_commit:
+          $ref: "#/components/schemas/Hex32"
+        primaries:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/NodeId"
+        standbys:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            $ref: "#/components/schemas/NodeId"
+        weights:
+          type: object
+          additionalProperties:
+            type: number
+          description: Battery + thermal aware weights
+
+    ExecutionResult:
+      type: object
+      description: Sandbox execution result (sandbox → consensus / transport)
+      x-status: planned
+      properties:
+        job_id:
+          $ref: "#/components/schemas/JobId"
+        worker:
+          $ref: "#/components/schemas/NodeId"
+        output_b64:
+          $ref: "#/components/schemas/BytesBase64"
+        trace_hash:
+          $ref: "#/components/schemas/TraceHash"
+        mem_peak:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Guest heap peak (capped by MEM_LIMIT)
+        ok:
+          type: boolean
+
+    CommitReceipt:
+      type: object
+      description: Consensus commit receipt
+      x-status: planned
+      properties:
+        root_hash:
+          $ref: "#/components/schemas/Hex32"
+        proof_b64:
+          $ref: "#/components/schemas/BytesBase64"
+          description: Merkle and/or SNARK bytes (prefer constant-size SNARK)
+        ledger_bytes:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10000000
+          description: Active ledger size; must be ≤ 10_000_000
+
+    SubmitJobRequest:
+      type: object
+      required: [job, vdf_proof]
+      properties:
+        job:
+          $ref: "#/components/schemas/JobEnvelope"
+        vdf_proof:
+          $ref: "#/components/schemas/VdfProof"
+
+    SubmitJobResponse:
+      type: object
+      properties:
+        accepted:
+          type: boolean
+        job_id:
+          $ref: "#/components/schemas/JobId"
+        message:
+          type: string
+          examples:
+            - Job Accepted
+
+    JobStatus:
+      type: object
+      properties:
+        job_id:
+          $ref: "#/components/schemas/JobId"
+        state:
+          type: string
+          enum: [queued, assigned, running, completed, failed, timed_out]
+        assignment:
+          $ref: "#/components/schemas/VrfAssignment"
+        result:
+          $ref: "#/components/schemas/ExecutionResult"
+        commit:
+          $ref: "#/components/schemas/CommitReceipt"
+
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          examples:
+            - ok
+        service:
+          type: string
+          examples:
+            - mossymesh-com
+            - mossymesh-node
+        version:
+          type: string
+        time_unix:
+          type: ["integer", "null"]
+          format: int64
+          description: Unix epoch seconds; null for static health artifacts
+        note:
+          type: string
+        island:
+          type: string
+          description: Planned mesh field
+        uplink:
+          type: boolean
+          description: Planned mesh field
+
+    SlaItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        target:
+          type: string
+        bytes_max:
+          type: integer
+
+    ProjectInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        also_known_as:
+          type: array
+          items:
+            type: string
+        domain:
+          type: string
+          format: uri
+        tagline:
+          type: string
+        mission:
+          type: string
+        poc:
+          type: object
+          additionalProperties: true
+        github:
+          type: object
+          additionalProperties:
+            type: string
+        license:
+          type: object
+          additionalProperties: true
+        slas:
+          type: array
+          items:
+            $ref: "#/components/schemas/SlaItem"
+        phase_summary:
+          type: object
+          additionalProperties: true
+        links:
+          type: object
+          additionalProperties:
+            type: string
+
+    StackLayer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        implementation:
+          type: string
+
+    StackInfo:
+      type: object
+      properties:
+        service:
+          type: string
+        description:
+          type: string
+        layers:
+          type: array
+          items:
+            $ref: "#/components/schemas/StackLayer"
+        supporting:
+          type: array
+          items:
+            $ref: "#/components/schemas/StackLayer"
+
+    PhaseDoD:
+      type: object
+      properties:
+        id:
+          type: string
+        pass:
+          type: string
+
+    Phase:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        focus:
+          type: string
+        deliverables:
+          type: array
+          items:
+            type: string
+        definition_of_done:
+          type: array
+          items:
+            $ref: "#/components/schemas/PhaseDoD"
+
+    PhasesInfo:
+      type: object
+      properties:
+        service:
+          type: string
+        source:
+          type: string
+        phases:
+          type: array
+          items:
+            $ref: "#/components/schemas/Phase"
+
+    EndpointEntry:
+      type: object
+      properties:
+        path:
+          type: string
+        method:
+          type: string
+        kind:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+        scope:
+          type: string
+
+    EndpointsCatalog:
+      type: object
+      properties:
+        service:
+          type: string
+        version:
+          type: string
+        note:
+          type: string
+        openapi:
+          type: string
+        site_pages:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndpointEntry"
+        site_meta_api:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndpointEntry"
+        mesh_gateway_planned:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndpointEntry"
+        well_known:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndpointEntry"
+
+    GameState:
+      type: object
+      properties:
+        fen:
+          type: string
+          description: Forsyth–Edwards Notation
+        moves:
+          type: array
+          items:
+            type: string
+        turn:
+          type: string
+          enum: [w, b]
+
+    GameMoveRequest:
+      type: object
+      required: [move]
+      properties:
+        move:
+          type: string
+          description: UCI or SAN move string
+        fen:
+          type: string
+          description: Optional position context
+
+    TwammOrder:
+      type: object
+      required: [side, amount, ref_price]
+      properties:
+        side:
+          type: string
+          enum: [buy, sell]
+        amount:
+          type: integer
+          format: int64
+        slices:
+          type: integer
+          default: 1
+        ref_price:
+          type: integer
+          format: int64
+          description: Reference mid (scale 1e6)
+        exec_price:
+          type: integer
+          format: int64
+          description: Optional immediate execution price (scale 1e6)
+
+    ErrorBody:
+      type: object
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+        code:
+          type: string

@@ -1,0 +1,7 @@
+{
+  "status": "ok",
+  "service": "mossymesh-com",
+  "version": "1.0.0",
+  "time_unix": null,
+  "note": "Static health probe always ok when CDN serves this file. Optional Pages Function at GET /api/v1/health may return live time_unix."
+}

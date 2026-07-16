@@ -1,0 +1,68 @@
+{
+  "name": "MossyMesh",
+  "also_known_as": ["MessyMash"],
+  "domain": "https://mossymesh.com",
+  "tagline": "Asynchronous, censorship-resistant, serverless supercomputer & open-source chess PoC",
+  "mission": "Build a self-healing mesh that turns phones, Raspberry Pis, PCs, and LoRa radios into a unified, decentralized compute grid operating independently of traditional ISPs, DNS servers, and fiat currencies.",
+  "poc": {
+    "name": "Offline-capable chess",
+    "engine": "shakmaty",
+    "target_mnps": 836,
+    "purpose": "Stress-test perfect state-transition determinism across heterogeneous hardware"
+  },
+  "github": {
+    "product": "https://github.com/movahedi-ca/MossyMesh",
+    "site": "https://github.com/movahedi-ca/mossymesh-com"
+  },
+  "license": {
+    "type": "open-source",
+    "product_repo": "See LICENSE in MossyMesh monorepo",
+    "spdx": null
+  },
+  "slas": [
+    {
+      "id": "SLA-RAM",
+      "name": "Edge ledger footprint",
+      "target": "≤ 10 MB active ledger on edge devices",
+      "bytes_max": 10000000
+    },
+    {
+      "id": "SLA-DET",
+      "name": "Determinism / verifiable compute",
+      "target": "< 1% unverifiable outputs"
+    },
+    {
+      "id": "SLA-TO",
+      "name": "Job reliability",
+      "target": "< 5% job timeout rate in unstable RF environments"
+    },
+    {
+      "id": "SLA-CAP",
+      "name": "Capacity",
+      "target": "100 RVCH/day per 20-node island with zero upstream internet"
+    },
+    {
+      "id": "SLA-DEC",
+      "name": "Decentralization",
+      "target": "No centralized DNS/IP/cloud DB as control plane"
+    }
+  ],
+  "phase_summary": {
+    "current_workspace": "0.1.x until Phase 3",
+    "phases": 5,
+    "labels": [
+      "1 Transport",
+      "2 Sandbox",
+      "3 Consensus",
+      "4 Logic",
+      "5 Interop"
+    ],
+    "detail": "/api/v1/phases.json"
+  },
+  "links": {
+    "openapi": "/openapi.yaml",
+    "api_catalog": "/api/index.json",
+    "docs_human": "/developers.html",
+    "product_contracts": "https://github.com/movahedi-ca/MossyMesh/blob/main/docs/interface-contracts.md"
+  }
+}

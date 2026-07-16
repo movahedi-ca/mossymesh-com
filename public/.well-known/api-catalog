@@ -1,0 +1,49 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://mossymesh.com/",
+      "service-desc": [
+        {
+          "href": "https://mossymesh.com/openapi.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://mossymesh.com/developers.html",
+          "type": "text/html"
+        },
+        {
+          "href": "https://mossymesh.com/api.html",
+          "type": "text/html"
+        }
+      ],
+      "item": [
+        {
+          "href": "https://mossymesh.com/api/index.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://mossymesh.com/api/v1/health.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://mossymesh.com/api/v1/project.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://mossymesh.com/api/v1/stack.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://mossymesh.com/api/v1/phases.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://mossymesh.com/api/v1/endpoints.json",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}
