@@ -172,12 +172,14 @@ img { max-width: 100%; }
 }
 .boot-logo span { color: var(--moss); text-shadow: 0 0 30px rgba(125, 255, 106, 0.6); }
 
-#boot-log {
+#boot-text {
   min-height: 180px;
   color: var(--ink-dim);
+  white-space: pre;
+  font-family: 'JetBrains Mono', monospace;
 }
-#boot-log .ok { color: var(--moss); }
-#boot-log .warn { color: var(--amber); }
+#boot-text .ok { color: var(--moss); }
+#boot-text .warn { color: var(--amber); }
 
 .boot-bar {
   height: 2px;
@@ -185,7 +187,7 @@ img { max-width: 100%; }
   margin-top: 16px;
   overflow: hidden;
 }
-#boot-fill {
+#boot-bar {
   height: 100%;
   width: 0%;
   background: var(--moss);
@@ -1139,11 +1141,6 @@ section { padding: 120px 0; position: relative; }
   margin: 0.5rem 0;
 }
 
-/* Boot ASCII art */
-#boot-text {
-  white-space: pre;
-  font-family: 'JetBrains Mono', monospace;
-}
 .boot-final {
   color: #00ff9d;
   font-weight: bold;
