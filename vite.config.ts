@@ -16,6 +16,7 @@ export default defineConfig({
         main: resolve(rootDir, "index.html"),
         developers: resolve(rootDir, "developers.html"),
         api: resolve(rootDir, "api.html"),
+        deepdive: resolve(rootDir, "deep-dive.html"),
       },
       external: ['three'],
     },

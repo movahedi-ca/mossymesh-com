@@ -11,32 +11,35 @@ Machine-readable project: https://mossymesh.com/api/v1/project.json
 ## Brand
 
 - Product brand: **MossyMesh** (domain mossymesh.com)
-- Chess PoC name: **MessyMash** (offline chess app proving cross-device determinism ~836 Mnps class)
+- Chess PoC name: **MessyMash** (offline chess app proving cross-device determinism; ~836 Mnps is a design target, not a measured result)
 
 ## SLAs
 
 - Active ledger on edge: ≤ 10 MB RAM
 - Unverifiable outputs: < 1%
-- Job timeout (unstable RF): < 5%
+- Job timeout (unstable RF): < 5% (target)
 - No centralized DNS / fixed IP / cloud DB as control plane
-- Capacity target: 100 RVCH/day per 20-node island, zero upstream internet
+- Capacity target: 100 RVCH/day per 20-node island, zero upstream internet (RVCH = Resilient Verifiable Compute-Hours)
 
-## Architecture layers
+## Architecture layers (eight Rust crates; status: wired = runs, partial = real code with mocks, target = design goal)
 
-- Frontend: React/TS PWA, captive portal
-- Application: Rust, shakmaty, yrs
-- Sandbox: WAMR (wasm32-wasip1), WASI, fixed-block memory pools
-- Transport: reticulum-rs, lxmf-rs, Kademlia DHT, LoRa, BLE
-- Ledger: trie-db, IPLD/DAG-CBOR
-- Proofs: nova-snark (recursive ZK folding)
-- AI: SITF, Edge PagedAttention, Vulkan Compute
+- mesh-transport (wired): libp2p Kademlia DHT, Ed25519 identity, LoRa CSMA/CA, BLE, STUN-less UDP hole punching. No QUIC, no Reticulum.
+- consensus (partial): custom Merkle trie over Blake3, YATA-inspired CRDT merge, LRU eviction. Recursive folding prover is a mock; nova-snark unwired.
+- engine (wired): Rust, shakmaty bitboards, wasm32-wasip1 build path
+- sandbox (partial): wasm32-wasip1, WASI, static INT8 quantization, hard 10 MiB guest heap (MEM_LIMIT). Native WAMR behind a feature flag; pure-Rust host runs tests today.
+- interop (partial): Axum gateway, WebSocket sync with exponential backoff, HTLC escrows, TWAMM (2% max spread). VDF-delayed cancel is a mock.
+- governance (partial): Web of Trust onboarding, quadratic staking, 3-of-5 admin multisig decaying to zero over 90 days, ZK-blinded voting
+- ai (wired): SITF tensors, Edge PagedAttention, Vulkan Compute (CPU backend is the real path)
+- integration (wired): cross-crate smoke harness running the real offline pipeline end to end
+- frontend (wired): TypeScript PWA, captive portal
+- Sybil defense: Wesolowski VDF over RSA-2048 (replaced MinRoot in issue #199); 50,000,000 sequential steps, ~10 min burn, millisecond verification
 
 ## Roadmap phases
 
 1. Transport: offline Wi-Fi, captive portal, LoRa/Kademlia
-2. Sandbox: WAMR, 10 MB cap, MinRoot VDF job DIDs
+2. Sandbox: 10 MB cap, Wesolowski VDF job DIDs
 3. Consensus: trie ledger, SNARK proofs, CRDT island merge
-4. Logic: WASM chess engine, lxmf messaging, HTLC escrow
+4. Logic: WASM chess engine, HTLC escrow
 5. Interop: OpenAPI gateway, TWAMM (2% max spread), liquidity bridge
 
 ## Public JSON (site)
@@ -57,5 +60,6 @@ Machine-readable project: https://mossymesh.com/api/v1/project.json
 ## Human pages
 
 - /: marketing
+- /deep-dive.html: the full field guide (island story, eight crates, sandbox, ledger, Sybil tax, honest build status)
 - /developers.html: contribute & stack
 - /api.html: API overview
