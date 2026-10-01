@@ -16,6 +16,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/src/styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
 </head>
 <body>
   <canvas id="cursor-canvas" aria-hidden="true"></canvas>
@@ -258,6 +265,4 @@
 
   <script type="module" src="/src/main.ts"></script>
 </body>
-
-<!-- rebuild trigger 2026-10-01 -->
 </html>
