@@ -161,7 +161,7 @@ const FALLBACK: ProjectJson = {
   mission:
     "Build a self-healing mesh that turns phones, Raspberry Pis, PCs, and LoRa radios into a unified, decentralized compute grid operating independently of traditional ISPs, DNS servers, and fiat currencies.",
   description:
-    "Decentralized offline compute mesh — identity-routed, deterministic WASM jobs, ≤10 MB edge ledger.",
+    "Decentralized offline compute mesh: identity-routed, deterministic WASM jobs, ≤10 MB edge ledger.",
   status: "static-fallback",
   github: {
     product: "https://github.com/movahedi-ca/MossyMesh",
@@ -221,7 +221,7 @@ function formatSlas(slas: ProjectJson["slas"]): HTMLElement | null {
       const li = el("li");
       const label = item.id ?? item.name ?? "SLA";
       const target = item.target ?? "";
-      li.innerHTML = `<span class="mono">${escapeHtml(label)}</span> — ${escapeHtml(target)}`;
+      li.innerHTML = `<span class="mono">${escapeHtml(label)}</span>: ${escapeHtml(target)}`;
       list.append(li);
     }
   } else {
@@ -271,7 +271,7 @@ function renderProjectMeta(data: ProjectJson): void {
       undefined,
       `PoC: ${data.poc.name ?? "chess"} (${data.poc.engine ?? "shakmaty"})` +
         (data.poc.target_mnps ? ` · ~${data.poc.target_mnps} Mnps class` : "") +
-        (data.poc.purpose ? ` — ${data.poc.purpose}` : ""),
+        (data.poc.purpose ? `: ${data.poc.purpose}` : ""),
     );
     poc.style.marginTop = "0.75rem";
     root.append(poc);
@@ -406,7 +406,7 @@ async function loadProject(): Promise<void> {
   } catch {
     setStatus(
       "fallback",
-      "Live /api/v1/project.json unavailable — showing static fallback.",
+      "Live /api/v1/project.json unavailable: showing static fallback.",
     );
     renderProjectMeta(FALLBACK);
     renderEndpoints(FALLBACK_ENDPOINTS);

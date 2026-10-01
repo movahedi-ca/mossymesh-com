@@ -7,14 +7,14 @@
   Cross-Origin-Opener-Policy: same-origin
   X-XSS-Protection: 0
 
-# API JSON — CORS + short CDN cache
+# API JSON: CORS + short CDN cache
 /api/*
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, OPTIONS
   Access-Control-Allow-Headers: Content-Type, Accept
   Cache-Control: public, max-age=300
 
-# OpenAPI document — machine clients need CORS + correct type
+# OpenAPI document: machine clients need CORS + correct type
 /openapi.yaml
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, OPTIONS

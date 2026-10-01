@@ -3,15 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="MossyMesh turns phones, Raspberry Pis, PCs, and LoRa radios into a decentralized offline compute mesh. Censorship-resistant. Identity-routed. Deterministic WASM jobs." />
+  <meta name="description" content="MossyMesh turns phones, Raspberry Pis, PCs, and LoRa radios into a decentralized offline compute mesh. Censorship-resistant, identity-routed, deterministic." />
   <meta name="theme-color" content="#050807" />
-  <meta property="og:title" content="MossyMesh — The Network That Refuses To Die" />
+  <meta property="og:title" content="MossyMesh: The Network That Refuses To Die" />
   <meta property="og:description" content="Decentralized offline compute mesh. No DNS. No cloud. No masters. Just machines talking to machines." />
   <meta property="og:url" content="https://mossymesh.com/" />
   <meta property="og:type" content="website" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://mossymesh.com/" />
-  <title>MOSSYMESH — THE NETWORK THAT REFUSES TO DIE</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "MossyMesh",
+        "url": "https://mossymesh.com/",
+        "description": "Open-source decentralized offline compute mesh. No DNS, no cloud, no central control."
+      },
+      {
+        "@type": "WebSite",
+        "name": "MossyMesh",
+        "url": "https://mossymesh.com/",
+        "publisher": { "@type": "Organization", "name": "MossyMesh" }
+      }
+    ]
+  }
+  </script>
+  <title>MOSSYMESH: THE NETWORK THAT REFUSES TO DIE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet" />
@@ -79,7 +98,7 @@
         <div class="container hero-inner">
           <div class="hero-kicker reveal">
             <span class="pulse-dot" aria-hidden="true"></span>
-            <span id="hero-status">SCANNING MESH — <span id="node-count">0</span> NODES ONLINE</span>
+            <span id="hero-status">SCANNING MESH: <span id="node-count">0</span> NODES ONLINE</span>
           </div>
           <h1 class="hero-title" id="hero-title">
             <span class="line reveal" data-delay="0">THE NETWORK</span>
@@ -89,7 +108,7 @@
           <p class="hero-sub reveal" data-delay="3">
             Phones. Raspberry Pis. LoRa radios. Old laptops in closets.
             MossyMesh stitches them into a compute mesh that needs
-            <strong>no DNS, no cloud, no permission</strong> — and keeps
+            <strong>no DNS, no cloud, no permission</strong>, and keeps
             running when everything else goes dark.
           </p>
           <div class="hero-ctas reveal" data-delay="4">
@@ -135,17 +154,17 @@
       <!-- MANIFESTO -->
       <section class="manifesto" id="manifesto">
         <div class="container">
-          <div class="section-tag reveal">// 01 — MANIFESTO</div>
+          <div class="section-tag reveal">// 01: MANIFESTO</div>
           <h2 class="section-title reveal">The internet broke.<br /><span class="accent">We built around it.</span></h2>
           <div class="manifesto-grid">
             <div class="manifesto-text reveal">
               <p class="big">Every "decentralized" project still phones home. A domain registrar. A cloud bucket. An API key that can be revoked at 3 AM by someone you've never met.</p>
               <p>MossyMesh starts from a different premise: <strong>assume the infrastructure is hostile or gone.</strong> No central DNS. No cloud database as control plane. No single point that a government, a corporation, or a backhoe can take out.</p>
-              <p>What remains is a mesh of ordinary devices — phones, Pis, PCs, LoRa radios — routing by cryptographic identity, executing deterministic WASM jobs, and converging on shared state through CRDTs. The ledger on any edge node stays under 10&nbsp;MB. Outputs are verifiable or they don't count.</p>
+              <p>What remains is a mesh of ordinary devices (phones, Pis, PCs, LoRa radios) routing by cryptographic identity, executing deterministic WASM jobs, and converging on shared state through CRDTs. The ledger on any edge node stays under 10&nbsp;MB. Outputs are verifiable or they don't count.</p>
             </div>
             <div class="manifesto-points">
               <div class="point reveal"><span class="point-num">01</span><h3>Identity-routed</h3><p>Ed25519 keys are addresses. No IP dependence, no DNS lookup, no registrar to seize.</p></div>
-              <div class="point reveal"><span class="point-num">02</span><h3>Deterministic WASM</h3><p>Jobs run in a sandboxed WASM runtime. Same input, same output, on every device — verifiable by anyone.</p></div>
+              <div class="point reveal"><span class="point-num">02</span><h3>Deterministic WASM</h3><p>Jobs run in a sandboxed WASM runtime. Same input, same output, on every device, verifiable by anyone.</p></div>
               <div class="point reveal"><span class="point-num">03</span><h3>Offline-first</h3><p>Designed for dead zones, disaster zones, and censored zones. The mesh is the network.</p></div>
               <div class="point reveal"><span class="point-num">04</span><h3>Tiny ledger</h3><p>≤10&nbsp;MB active ledger on edge hardware. A Raspberry Pi Zero can be a full citizen.</p></div>
             </div>
@@ -156,11 +175,11 @@
       <!-- NETWORK / ARCHITECTURE -->
       <section class="network" id="network">
         <div class="container">
-          <div class="section-tag reveal">// 02 — ANATOMY OF THE MESH</div>
+          <div class="section-tag reveal">// 02: ANATOMY OF THE MESH</div>
           <h2 class="section-title reveal">Seven crates.<br /><span class="accent">Zero masters.</span></h2>
           <div class="crates">
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">01</span><h3>mesh-transport</h3></div><p>QUIC + LoRa packet radio. The nervous system — moves bytes across whatever medium exists.</p><div class="crate-lang">RUST</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">02</span><h3>identity</h3></div><p>Ed25519 keys, multisig, DIDs. You are your key. Lose the key, lose the identity — no password reset hotline.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">01</span><h3>mesh-transport</h3></div><p>QUIC + LoRa packet radio. The nervous system: moves bytes across whatever medium exists.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">02</span><h3>identity</h3></div><p>Ed25519 keys, multisig, DIDs. You are your key. Lose the key, lose the identity. No password reset hotline.</p><div class="crate-lang">RUST</div></article>
             <article class="crate reveal"><div class="crate-head"><span class="crate-num">03</span><h3>consensus</h3></div><p>Merkle-Patricia trie, iterative traversal, CRDT merge. Shared truth without a referee.</p><div class="crate-lang">RUST</div></article>
             <article class="crate reveal"><div class="crate-head"><span class="crate-num">04</span><h3>sandbox</h3></div><p>WAMR-based WASM execution. Deterministic jobs: same bytes in, same bytes out, everywhere.</p><div class="crate-lang">RUST · WASM</div></article>
             <article class="crate reveal"><div class="crate-head"><span class="crate-num">05</span><h3>interop</h3></div><p>Axum gateway, WebSocket sync loop with exponential backoff. The bridge to the old internet.</p><div class="crate-lang">RUST</div></article>
@@ -173,7 +192,7 @@
       <!-- CHESS PROOF -->
       <section class="chess" id="chess">
         <div class="container">
-          <div class="section-tag reveal">// 03 — PROOF, NOT PROMISES</div>
+          <div class="section-tag reveal">// 03: PROOF, NOT PROMISES</div>
           <h2 class="section-title reveal">Chess across the mesh.<br /><span class="accent">Same board, every device.</span></h2>
           <div class="chess-grid">
             <div class="chess-board-wrap reveal">
@@ -184,9 +203,9 @@
               <p class="big">If two phones in airplane mode can agree on a chess position, they can agree on anything.</p>
               <p>The Chess PoC is MossyMesh's determinism benchmark: every move is a CRDT operation, every position is a trie root, and the engine evaluation runs identically on-device or in the WASM sandbox. Target: ~836 million nodes per second.</p>
               <ul class="proof-list">
-                <li><strong>Deterministic state</strong> — identical FEN on every peer, or the merge is wrong</li>
-                <li><strong>Verifiable compute</strong> — &lt;1% unverifiable outputs, or the job doesn't ship</li>
-                <li><strong>Hostile RF</strong> — &lt;5% job timeout even on flaky LoRa links</li>
+                <li><strong>Deterministic state</strong>: identical FEN on every peer, or the merge is wrong</li>
+                <li><strong>Verifiable compute</strong>: &lt;1% unverifiable outputs, or the job doesn't ship</li>
+                <li><strong>Hostile RF</strong>: &lt;5% job timeout even on flaky LoRa links</li>
               </ul>
               <a class="btn btn-primary" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener"><span>READ THE CODE</span><span class="btn-arrow" aria-hidden="true">→</span></a>
             </div>
@@ -197,7 +216,7 @@
       <!-- TERMINAL -->
       <section class="terminal-section" id="terminal">
         <div class="container">
-          <div class="section-tag reveal">// 04 — TALK TO THE MESH</div>
+          <div class="section-tag reveal">// 04: TALK TO THE MESH</div>
           <h2 class="section-title reveal">A terminal.<br /><span class="accent">Because GUIs are for tourists.</span></h2>
           <p class="section-sub reveal">Type <code>help</code> and poke around. There are easter eggs in here.</p>
           <div class="terminal reveal" id="terminal" role="region" aria-label="Interactive mesh terminal">
@@ -217,7 +236,7 @@
       <!-- DOCS / API -->
       <section class="docs-cta" id="docs">
         <div class="container">
-          <div class="section-tag reveal">// 05 — BUILD ON IT</div>
+          <div class="section-tag reveal">// 05: BUILD ON IT</div>
           <h2 class="section-title reveal">Machine-readable<br /><span class="accent">from day one.</span></h2>
           <p class="section-sub reveal">Every fact on this page also lives as JSON. OpenAPI 3.1 spec, CORS-ready endpoints, no SPA-only content traps.</p>
           <div class="docs-grid">

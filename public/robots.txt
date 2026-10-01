@@ -1,4 +1,4 @@
-# MossyMesh — https://mossymesh.com
+# MossyMesh: https://mossymesh.com
 User-agent: *
 Allow: /
 Allow: /api/

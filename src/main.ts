@@ -1,4 +1,4 @@
-// MOSSYMESH — NUT JOB EDITION
+// MOSSYMESH: NUT JOB EDITION
 // Three.js globe, audio-reactive drone, terminal games, matrix mode, physics marquee.
 // Three.js loaded from CDN via importmap (see index.html).
 
@@ -516,7 +516,7 @@ const COMMANDS: Record<string, (args: string[]) => void> = {
 
 function initTerminal() {
   const input = document.getElementById('term-input') as HTMLInputElement;
-  termPrint('MOSSYMESH TERMINAL v3.7.1 — type "help"', 'term-green');
+  termPrint('MOSSYMESH TERMINAL v3.7.1: type "help"', 'term-green');
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const raw = input.value.trim().toLowerCase();
@@ -721,7 +721,7 @@ function initChess() {
       });
     });
     const status = document.getElementById('chess-status');
-    if (status) status.textContent = turn === 'w' ? 'WHITE TO MOVE — click a piece, then a target' : 'MESH ENGINE THINKING…';
+    if (status) status.textContent = turn === 'w' ? 'WHITE TO MOVE: click a piece, then a target' : 'MESH ENGINE THINKING…';
   };
   
   const isWhite = (p: string) => p === p.toUpperCase() && p !== '';

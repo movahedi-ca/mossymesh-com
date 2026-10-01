@@ -33,11 +33,11 @@ Machine-readable project: https://mossymesh.com/api/v1/project.json
 
 ## Roadmap phases
 
-1. Transport — offline Wi-Fi, captive portal, LoRa/Kademlia
-2. Sandbox — WAMR, 10 MB cap, MinRoot VDF job DIDs
-3. Consensus — trie ledger, SNARK proofs, CRDT island merge
-4. Logic — WASM chess engine, lxmf messaging, HTLC escrow
-5. Interop — OpenAPI gateway, TWAMM (2% max spread), liquidity bridge
+1. Transport: offline Wi-Fi, captive portal, LoRa/Kademlia
+2. Sandbox: WAMR, 10 MB cap, MinRoot VDF job DIDs
+3. Consensus: trie ledger, SNARK proofs, CRDT island merge
+4. Logic: WASM chess engine, lxmf messaging, HTLC escrow
+5. Interop: OpenAPI gateway, TWAMM (2% max spread), liquidity bridge
 
 ## Public JSON (site)
 
@@ -56,6 +56,6 @@ Machine-readable project: https://mossymesh.com/api/v1/project.json
 
 ## Human pages
 
-- / — marketing
-- /developers.html — contribute & stack
-- /api.html — API overview
+- /: marketing
+- /developers.html: contribute & stack
+- /api.html: API overview

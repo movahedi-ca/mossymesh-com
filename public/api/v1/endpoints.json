@@ -9,7 +9,7 @@
       "method": "GET",
       "kind": "html",
       "status": "planned_or_live",
-      "description": "Marketing landing — hero, mission, SLAs, phases, CTAs"
+      "description": "Marketing landing: hero, mission, SLAs, phases, CTAs"
     },
     {
       "path": "/developers.html",
@@ -91,7 +91,7 @@
       "kind": "json",
       "status": "planned",
       "scope": "mesh_node",
-      "description": "Mesh island / node health (island status) — activates on local node or uplink gateway"
+      "description": "Mesh island / node health (island status): activates on local node or uplink gateway"
     },
     {
       "path": "/api/v1/submit_job",

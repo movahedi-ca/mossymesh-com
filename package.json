@@ -12,6 +12,14 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "test:smoke": "node tests/smoke.mjs",
+    "test:a11y": "node tests/a11y-static.mjs",
+    "test:links": "node tests/link-integrity.mjs",
+    "test:seo": "node tests/seo-smoke.mjs",
+    "test:perf": "node tests/perf-budgets.mjs",
+    "test:content": "node tests/content-quality.mjs",
+    "test": "npm run lint:style && npm run build && npm run test:smoke && npm run test:a11y && npm run test:links && npm run test:seo && npm run test:perf && npm run test:content",
+    "lint:style": "node scripts/lint-no-emdash.mjs",
     "deploy:local": "npm run build && wrangler pages deploy dist --project-name=mossymesh-com"
   },
   "devDependencies": {
