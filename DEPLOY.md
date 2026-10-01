@@ -7,7 +7,7 @@ This guide covers production deploy, custom domain DNS, CORS headers for `/api/*
 
 ---
 
-## STOP — if you see this in Cloudflare build logs
+## STOP: if you see this in Cloudflare build logs
 
 ```text
 /opt/buildhome/.config/.wrangler/logs/...
@@ -23,12 +23,12 @@ Super Administrator - All Privileges
 | --- | --- |
 | Path `/opt/buildhome/` | This is **Cloudflare’s build VM**, not your PC |
 | `CLOUDFLARE_API_TOKEN` | Wrangler is using an **API token**, not your Super Admin browser session |
-| Super Administrator | Your **user role** is fine — the **token** still may lack Pages write |
+| Super Administrator | Your **user role** is fine: the **token** still may lack Pages write |
 | `running deploy command` | Project settings are running **Wrangler deploy** after the build (wrong for Git Pages) |
 
 **Being Super Admin does not fix a bad/missing token permission.** Tokens are separate from membership roles.
 
-### Fix (Cloudflare Dashboard) — do this first
+### Fix (Cloudflare Dashboard): do this first
 
 Open: **Workers & Pages** → **mossymesh-com** → **Settings** → **Builds & deployments**
 
@@ -38,10 +38,10 @@ Open: **Workers & Pages** → **mossymesh-com** → **Settings** → **Builds & 
 | **Build command** | `npm run build` |
 | **Build output directory** | `dist` |
 | **Root directory** | `/` (empty / default) |
-| **Deploy command** | **LEAVE EMPTY** — delete `npm run deploy`, `npx wrangler …`, etc. |
+| **Deploy command** | **LEAVE EMPTY**: delete `npm run deploy`, `npx wrangler …`, etc. |
 | **Non-production branch deploy command** | **LEAVE EMPTY** |
 
-Cloudflare Pages Git integration **already uploads `dist` for you**. Running Wrangler inside the build is a second deploy and needs a special token — that is what fails with **10000**.
+Cloudflare Pages Git integration **already uploads `dist` for you**. Running Wrangler inside the build is a second deploy and needs a special token: that is what fails with **10000**.
 
 ### Also remove these env vars from the Pages project (if set)
 
@@ -56,7 +56,7 @@ Cloudflare Pages Git integration **already uploads `dist` for you**. Running Wra
 
 1. **Save**
 2. **Deployments** → **Retry deployment** (or push a commit to `main`)
-3. Build log should end after `vite build` / uploading assets — **no** Wrangler “Authentication error”
+3. Build log should end after `vite build` / uploading assets: **no** Wrangler “Authentication error”
 
 ### Already live (direct upload)
 
@@ -91,7 +91,7 @@ No Node server in production. Cloudflare Pages serves the static `dist` output.
 
 ---
 
-## Path A — Recommended: Cloudflare Pages + GitHub
+## Path A: Recommended: Cloudflare Pages + GitHub
 
 Cloudflare builds and deploys on every push to `main`. No deploy secrets in GitHub required.
 
@@ -138,7 +138,7 @@ Do **not** set `CLOUDFLARE_API_TOKEN` on the Pages project for Git builds.
 | Error / symptom | Fix |
 | --- | --- |
 | `Failed: error occurred while running deploy command` + code **10000** | Clear **Deploy command**; remove API token env vars (see STOP section above) |
-| GitHub Action fails instantly, 0 jobs | Do not put `secrets.*` in workflow `if:` — fixed in `.github/workflows/deploy.yml` |
+| GitHub Action fails instantly, 0 jobs | Do not put `secrets.*` in workflow `if:`: fixed in `.github/workflows/deploy.yml` |
 | `npm ci` fails | Ensure `package-lock.json` is committed (it is) |
 | Wrong output directory | Must be `dist`, not `build` or `.` |
 | Functions + rewrite clash on `/api/v1/health` | Health is a Pages Function; other `/api/v1/*` use `_redirects` |
@@ -169,18 +169,18 @@ Cloudflare usually auto-creates:
 | CNAME | `@` (or apex via CNAME flattening) | `mossymesh-com.pages.dev` | Proxied (orange cloud) |
 | CNAME | `www` | `mossymesh-com.pages.dev` | Proxied (orange cloud) |
 
-Exact UI labels may say “Add record” automatically — accept the recommended records and leave **Proxy status: Proxied**.
+Exact UI labels may say “Add record” automatically: accept the recommended records and leave **Proxy status: Proxied**.
 
 #### If the domain is registered elsewhere (not on Cloudflare DNS)
 
 Either:
 
-**Option B1 — Move DNS to Cloudflare (simplest long-term)**  
+**Option B1: Move DNS to Cloudflare (simplest long-term)**  
 1. Add site `mossymesh.com` in Cloudflare → **Add a site**.  
 2. Change nameservers at the registrar to the two Cloudflare nameservers shown.  
 3. After active, attach the domain to the Pages project as above.
 
-**Option B2 — Keep external DNS**  
+**Option B2: Keep external DNS**  
 At your DNS host, create what Pages shows (typically):
 
 | Type | Host | Value | Notes |
@@ -237,7 +237,7 @@ Also open in a browser:
 
 ---
 
-## Path B — CLI deploy (local or one-off)
+## Path B: CLI deploy (local or one-off)
 
 Use when you want a manual publish without waiting for Git, or for testing.
 
@@ -266,7 +266,7 @@ npm run deploy:local
 
 (`deploy:local` = `npm run build && wrangler pages deploy dist --project-name=mossymesh-com`)
 
-First CLI deploy may ask you to create the project if it does not exist yet — confirm name **`mossymesh-com`**.
+First CLI deploy may ask you to create the project if it does not exist yet: confirm name **`mossymesh-com`**.
 
 ### Non-interactive CI token (optional)
 
@@ -302,7 +302,7 @@ set in an environment variable.
 | --- | --- |
 | **A. Use OAuth (simplest locally)** | Unset the bad token, then deploy: `Remove-Item Env:CLOUDFLARE_API_TOKEN` (PowerShell) or `unset CLOUDFLARE_API_TOKEN` (bash). Run `npx wrangler login` if needed. Then `npm run deploy`. |
 | **B. New API token** | Create token with **Account → Cloudflare Pages → Edit** (see above). Replace GitHub secret / shell env with the new value. |
-| **C. Git integration** | Cloudflare Dashboard → Pages → Connect Git → `movahedi-ca/mossymesh-com` — no API token needed for deploys. |
+| **C. Git integration** | Cloudflare Dashboard → Pages → Connect Git → `movahedi-ca/mossymesh-com`: no API token needed for deploys. |
 
 **PowerShell one-shot (OAuth path):**
 

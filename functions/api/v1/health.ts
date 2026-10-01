@@ -1,5 +1,5 @@
 /**
- * Cloudflare Pages Function — live health for GET /api/v1/health
+ * Cloudflare Pages Function: live health for GET /api/v1/health
  *
  * Static fallback remains at /api/v1/health.json (time_unix: null).
  * CORS headers also documented in public/_headers.api-snippet.txt for Agent C.

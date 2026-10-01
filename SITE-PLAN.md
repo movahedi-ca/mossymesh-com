@@ -1,4 +1,4 @@
-# mossymesh.com — Site Plan
+# mossymesh.com: Site Plan
 
 **Domain:** https://mossymesh.com (owned)  
 **Repo:** https://github.com/movahedi-ca/mossymesh-com  
@@ -7,7 +7,7 @@
 
 ## Product one-liner
 
-MossyMesh (MessyMash PoC) turns phones, Raspberry Pis, PCs, and LoRa radios into a decentralized offline compute mesh — censorship-resistant, identity-routed, with deterministic WASM jobs and a ≤10 MB edge ledger. Chess PoC proves cross-device state determinism.
+MossyMesh (MessyMash PoC) turns phones, Raspberry Pis, PCs, and LoRa radios into a decentralized offline compute mesh: censorship-resistant, identity-routed, with deterministic WASM jobs and a ≤10 MB edge ledger. Chess PoC proves cross-device state determinism.
 
 ## Design goals
 
@@ -25,18 +25,18 @@ MossyMesh (MessyMash PoC) turns phones, Raspberry Pis, PCs, and LoRa radios into
 
 ## Stack (agreed)
 
-- **Vite + vanilla TS or lightweight Astro** — prefer **Vite multi-page or single index + secondary pages** for zero lock-in.
+- **Vite + vanilla TS or lightweight Astro**: prefer **Vite multi-page or single index + secondary pages** for zero lock-in.
 - Static JSON in `public/api/` so CDN serves APIs without a backend.
 - Optional Cloudflare Pages Functions only for dynamic stubs (`/api/health` live check).
 - Dark, technical, trustworthy aesthetic (mesh / edge / crypto-adjacent, not gamer neon).
 
 ## Must-have pages
 
-- `/` — hero, mission, SLAs, phases, CTAs (GitHub, docs, API)
-- `/docs` or `/developers` — human docs linking to OpenAPI
+- `/`: hero, mission, SLAs, phases, CTAs (GitHub, docs, API)
+- `/docs` or `/developers`: human docs linking to OpenAPI
 - `/api` index listing endpoints
 - `/api/v1/project.json`, `/api/v1/health.json`, `/api/v1/phases.json`, `/api/v1/stack.json`
-- `/openapi.yaml` (or `.json`) — full OpenAPI 3.1 for the public gateway surface (from MossyMesh interop contracts)
+- `/openapi.yaml` (or `.json`): full OpenAPI 3.1 for the public gateway surface (from MossyMesh interop contracts)
 
 ## SLAs to surface (from MossyMesh README)
 

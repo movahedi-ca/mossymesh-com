@@ -1,4 +1,4 @@
-# Agent C — merge these into public/_headers (Cloudflare Pages)
+# Agent C: merge these into public/_headers (Cloudflare Pages)
 # Owner: Agent B (API surface) documents required CORS for /api/*
 # Do not treat this file as live config; only _headers is consumed by Pages.
 #
