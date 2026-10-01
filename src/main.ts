@@ -34,7 +34,7 @@ function runBoot(): Promise<void> {
     const pct = document.getElementById('boot-pct')!;
     if (reducedMotion) { boot.remove(); resolve(); return; }
     // Mobile: tap anywhere to skip boot
-    const skip = () => { boot.classList.add('boot-done'); setTimeout(() => { boot.remove(); resolve(); }, 300); };
+    const skip = () => { boot.classList.add('done'); setTimeout(() => { boot.remove(); resolve(); }, 300); };
     if (isMobile) boot.addEventListener('pointerdown', skip, { once: true });
     // Mobile gets a shorter boot sequence
     const lines = isMobile ? BOOT_LINES.filter((_, i) => i < 8 || i >= BOOT_LINES.length - 3) : BOOT_LINES;
@@ -55,7 +55,7 @@ function runBoot(): Promise<void> {
         setTimeout(tick, delay);
       } else {
         setTimeout(() => {
-          boot.classList.add('boot-done');
+          boot.classList.add('done');
           setTimeout(() => { boot.remove(); resolve(); }, 700);
         }, isMobile ? 250 : 500);
       }
@@ -650,7 +650,7 @@ function initReveals() {
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.classList.add('revealed');
+        e.target.classList.add('visible');
         io.unobserve(e.target);
       }
     });
