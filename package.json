@@ -23,9 +23,9 @@
     "deploy:local": "npm run build && wrangler pages deploy dist --project-name=mossymesh-com"
   },
   "devDependencies": {
+    "@types/three": "^0.186.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
     "wrangler": "^4.14.0"
-  },
-  "dependencies": {}
+  }
 }
