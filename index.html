@@ -49,8 +49,9 @@
   <div id="boot" aria-hidden="true">
     <div class="boot-inner">
       <div class="boot-logo">MOSSY<span>MESH</span></div>
-      <div id="boot-log"></div>
-      <div class="boot-bar"><div id="boot-fill"></div></div>
+      <div id="boot-text"></div>
+      <div class="boot-bar"><div id="boot-bar"></div></div>
+      <div id="boot-pct">0%</div>
     </div>
   </div>
 
@@ -141,7 +142,7 @@
 
       <!-- MARQUEE -->
       <div class="marquee" aria-hidden="true">
-        <div class="marquee-track" id="marquee-track">
+        <div class="marquee-track" id="marquee-inner">
           <span>NO DNS</span><span class="sep">◆</span>
           <span>NO CLOUD</span><span class="sep">◆</span>
           <span>NO MASTERS</span><span class="sep">◆</span>
@@ -196,7 +197,7 @@
           <h2 class="section-title reveal">Chess across the mesh.<br /><span class="accent">Same board, every device.</span></h2>
           <div class="chess-grid">
             <div class="chess-board-wrap reveal">
-              <div class="chess-board" id="demo-board" aria-label="Interactive chess demo"></div>
+              <div class="chess-board" id="chess-board" aria-label="Interactive chess demo"></div>
               <div class="chess-caption">Click a piece, then a square. Moves publish to the mesh.</div>
             </div>
             <div class="chess-text reveal">
@@ -214,7 +215,7 @@
       </section>
 
       <!-- TERMINAL -->
-      <section class="terminal-section" id="terminal">
+      <section class="terminal-section" id="terminal-section">
         <div class="container">
           <div class="section-tag reveal">// 04: TALK TO THE MESH</div>
           <h2 class="section-title reveal">A terminal.<br /><span class="accent">Because GUIs are for tourists.</span></h2>
@@ -224,7 +225,7 @@
               <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
               <span class="term-title">mesh@node-7f3a:~</span>
             </div>
-            <div class="term-body" id="term-body" aria-live="polite"></div>
+            <div class="term-body" id="term-output" aria-live="polite"></div>
             <div class="term-input-line">
               <span class="prompt" aria-hidden="true">mesh@node-7f3a:~$</span>
               <input id="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal input" />
