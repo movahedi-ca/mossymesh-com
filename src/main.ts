@@ -1,6 +1,6 @@
 // MOSSYMESH — NUT JOB EDITION
 // Three.js globe, audio-reactive drone, terminal games, matrix mode, physics marquee.
-import * as THREE from 'three';
+// Three.js loaded from CDN via importmap (see index.html).
 
 // ============ UTILITIES ============
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
@@ -59,13 +59,23 @@ function runBoot(): Promise<void> {
 }
 
 // ============ THREE.JS GLOBE ============
-let globeScene: THREE.Scene, globeCamera: THREE.PerspectiveCamera, globeRenderer: THREE.WebGLRenderer;
-let globeGroup: THREE.Group, arcGroup: THREE.Group;
+// Three.js loaded dynamically from CDN (importmap in index.html)
+let THREE_NS: any = null;
+async function loadThree() {
+  if (!THREE_NS) {
+    THREE_NS = await import('three');
+  }
+  return THREE_NS;
+}
+let globeScene: any, globeCamera: any, globeRenderer: any;
+let globeGroup: any, arcGroup: any;
 let mouseX = 0, mouseY = 0;
 
-function initGlobe() {
+async function initGlobe() {
   const canvas = document.getElementById('globe-canvas') as HTMLCanvasElement;
   if (!canvas) return;
+  
+  const THREE = await loadThree();
   
   globeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -83,7 +93,7 @@ function initGlobe() {
   
   // Node points via fibonacci sphere
   const positions = new Float32Array(NODES * 3);
-  const nodePts: THREE.Vector3[] = [];
+  const nodePts: any[] = [];
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
   for (let i = 0; i < NODES; i++) {
     const y = 1 - (i / (NODES - 1)) * 2;
