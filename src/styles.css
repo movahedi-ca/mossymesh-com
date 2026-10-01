@@ -1181,3 +1181,162 @@ section { padding: 120px 0; position: relative; }
 @media (max-width: 768px) {
   .audio-btn { display: none; }
 }
+
+/* ============ MOBILE WOW ============ */
+
+/* Touch ripple effect */
+#touch-ripples {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+.touch-ripple {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  border: 2px solid var(--moss);
+  animation: ripple-expand 0.65s ease-out forwards;
+}
+.touch-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--moss);
+  opacity: 0.5;
+}
+@keyframes ripple-expand {
+  0% { transform: scale(0.3); opacity: 1; }
+  100% { transform: scale(6); opacity: 0; }
+}
+
+/* Hero tap pulse - shockwave through the hero */
+.hero-pulse .hero-inner {
+  animation: hero-shock 0.5s ease-out;
+}
+@keyframes hero-shock {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+.hero-pulse #globe-canvas {
+  animation: globe-flash 0.5s ease-out;
+}
+@keyframes globe-flash {
+  0% { filter: brightness(1); }
+  30% { filter: brightness(1.4) saturate(1.3); }
+  100% { filter: brightness(1); }
+}
+
+/* Mobile-specific hero optimization */
+@media (hover: none) and (pointer: coarse) {
+  #globe-canvas {
+    touch-action: pan-y;
+    cursor: grab;
+  }
+  #globe-canvas:active {
+    cursor: grabbing;
+  }
+  /* Larger tap targets */
+  .btn, .nav-cta, .audio-btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  /* Boot tap hint */
+  #boot::after {
+    content: 'TAP TO SKIP';
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--dim);
+    animation: blink 1.5s infinite;
+  }
+}
+
+/* Mobile layout refinements */
+@media (max-width: 768px) {
+  .audio-btn { display: none; }
+  
+  .hero {
+    min-height: 100svh; /* Use small viewport height for mobile browsers */
+  }
+  
+  .hero-title {
+    font-size: clamp(44px, 13vw, 72px);
+    line-height: 0.95;
+  }
+  
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  .hero-stats {
+    gap: 20px;
+  }
+  
+  .stat-num {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+  
+  /* Terminal mobile optimization */
+  .terminal {
+    font-size: 13px;
+  }
+  #term-input {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Chess board touch targets */
+  .chess-board {
+    touch-action: manipulation;
+  }
+  
+  /* Ensure no horizontal overflow */
+  .site-wrap {
+    overflow-x: hidden;
+  }
+  
+  /* Marquee touch */
+  .marquee {
+    touch-action: pan-y;
+  }
+  
+  /* Cards stack nicely */
+  .crates {
+    grid-template-columns: 1fr;
+  }
+  
+  .docs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small phones */
+@media (max-width: 390px) {
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .hero-title {
+    font-size: clamp(40px, 12vw, 56px);
+  }
+  
+  .hero-ctas {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .hero-ctas .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
