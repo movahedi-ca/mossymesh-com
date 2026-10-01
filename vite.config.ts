@@ -17,6 +17,7 @@ export default defineConfig({
         developers: resolve(rootDir, "developers.html"),
         api: resolve(rootDir, "api.html"),
       },
+      external: ['three'],
     },
   },
   server: {
