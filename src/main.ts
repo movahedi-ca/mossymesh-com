@@ -6,6 +6,8 @@
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches || window.innerWidth < 768;
+const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 // ============ CINEMATIC BOOT ============
 const BOOT_LINES = [
@@ -34,27 +36,34 @@ function runBoot(): Promise<void> {
     const bar = document.getElementById('boot-bar')!;
     const pct = document.getElementById('boot-pct')!;
     if (reducedMotion) { boot.remove(); resolve(); return; }
+    // Mobile: tap anywhere to skip boot
+    const skip = () => { boot.classList.add('boot-done'); setTimeout(() => { boot.remove(); resolve(); }, 300); };
+    if (isMobile) boot.addEventListener('pointerdown', skip, { once: true });
+    // Mobile gets a shorter boot sequence
+    const lines = isMobile ? BOOT_LINES.filter((_, i) => i < 8 || i >= BOOT_LINES.length - 3) : BOOT_LINES;
     let i = 0;
-    const total = BOOT_LINES.length;
+    const total = lines.length;
     const tick = () => {
       if (i < total) {
         const div = document.createElement('div');
-        div.textContent = BOOT_LINES[i];
+        div.textContent = lines[i];
         if (i === total - 1) div.className = 'boot-final';
         text.appendChild(div);
         i++;
         const p = Math.round((i / total) * 100);
         bar.style.width = p + '%';
         pct.textContent = p + '%';
-        setTimeout(tick, i > total - 4 ? 350 : rand(60, 200));
+        // Faster on mobile
+        const delay = isMobile ? rand(40, 120) : (i > total - 4 ? 350 : rand(60, 200));
+        setTimeout(tick, delay);
       } else {
         setTimeout(() => {
           boot.classList.add('boot-done');
           setTimeout(() => { boot.remove(); resolve(); }, 700);
-        }, 500);
+        }, isMobile ? 250 : 500);
       }
     };
-    setTimeout(tick, 400);
+    setTimeout(tick, isMobile ? 200 : 400);
   });
 }
 
@@ -77,8 +86,8 @@ async function initGlobe() {
   
   const THREE = await loadThree();
   
-  globeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  globeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !isMobile });
+  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
   
   globeScene = new THREE.Scene();
   globeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
@@ -89,7 +98,7 @@ async function initGlobe() {
   globeScene.add(globeGroup, arcGroup);
   
   const R = 1.6;
-  const NODES = 900;
+  const NODES = isMobile ? 500 : 900;
   
   // Node points via fibonacci sphere
   const positions = new Float32Array(NODES * 3);
@@ -164,20 +173,51 @@ async function initGlobe() {
     mouseX = (e.clientX / window.innerWidth) * 2 - 1;
     mouseY = (e.clientY / window.innerHeight) * 2 - 1;
   }, { passive: true });
-  
+
+  // Touch-drag globe rotation with inertia (mobile wow)
+  let dragVelX = 0, dragVelY = 0;
+  let lastTouchX = 0, lastTouchY = 0;
+  let isDragging = false;
+  let dragOffsetX = 0, dragOffsetY = 0;
+  if (isTouch) {
+    canvas.style.touchAction = 'pan-y'; // allow vertical scroll, capture horizontal
+    canvas.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      lastTouchX = e.clientX; lastTouchY = e.clientY;
+      dragVelX = 0; dragVelY = 0;
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastTouchX, dy = e.clientY - lastTouchY;
+      dragVelX = dx * 0.005; dragVelY = dy * 0.003;
+      dragOffsetX += dragVelX; dragOffsetY += dragVelY;
+      lastTouchX = e.clientX; lastTouchY = e.clientY;
+    }, { passive: true });
+    const endDrag = () => { isDragging = false; };
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+  }
+
   let t = 0;
   const animate = () => {
     requestAnimationFrame(animate);
     t += 0.002;
     if (!reducedMotion) {
-      globeGroup.rotation.y += 0.0018;
-      arcGroup.rotation.y += 0.0018;
-      globeGroup.rotation.x = mouseY * 0.25;
-      globeGroup.rotation.z = mouseX * 0.1;
-      arcGroup.rotation.x = mouseY * 0.25;
+      // Inertia: velocity decays when not dragging
+      if (!isDragging) {
+        dragOffsetX += dragVelX; dragOffsetY += dragVelY;
+        dragVelX *= 0.95; dragVelY *= 0.95;
+      }
+      globeGroup.rotation.y += 0.0018 + dragVelX;
+      arcGroup.rotation.y += 0.0018 + dragVelX;
+      globeGroup.rotation.x = mouseY * 0.25 + dragOffsetY;
+      globeGroup.rotation.z = mouseX * 0.1 + dragOffsetX * 0.3;
+      arcGroup.rotation.x = mouseY * 0.25 + dragOffsetY;
       const sy = window.scrollY / (document.body.scrollHeight || 1);
       globeCamera.position.z = 4.2 - sy * 1.2;
       globeGroup.scale.setScalar(1 + Math.sin(t * 2) * 0.015);
+      // Clamp drag offsets to prevent extreme tilt
+      dragOffsetY = clamp(dragOffsetY, -0.8, 0.8);
     }
     globeRenderer.render(globeScene, globeCamera);
   };
@@ -273,7 +313,8 @@ function initCursorParticles() {
     if (lastX >= 0) {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       const speed = Math.hypot(dx, dy);
-      if (speed > 3 && particles.length < 150) {
+      const maxParticles = isMobile ? 60 : 150;
+      if (speed > 3 && particles.length < maxParticles) {
         particles.push({
           x: e.clientX, y: e.clientY,
           vx: rand(-1, 1) - dx * 0.02, vy: rand(-1, 1) - dy * 0.02,
@@ -298,6 +339,43 @@ function initCursorParticles() {
     }
   };
   loop();
+}
+
+// ============ MOBILE WOW: TOUCH RIPPLES ============
+function initTouchRipples() {
+  if (!isTouch || reducedMotion) return;
+  const container = document.createElement('div');
+  container.id = 'touch-ripples';
+  container.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(container);
+  let lastRipple = 0;
+  window.addEventListener('pointerdown', (e) => {
+    // Don't ripple on inputs or when typing
+    if ((e.target as HTMLElement).matches('input, textarea, button, a')) return;
+    const now = performance.now();
+    if (now - lastRipple < 80) return; // throttle
+    lastRipple = now;
+    const r = document.createElement('div');
+    r.className = 'touch-ripple';
+    r.style.left = e.clientX + 'px';
+    r.style.top = e.clientY + 'px';
+    container.appendChild(r);
+    setTimeout(() => r.remove(), 700);
+  }, { passive: true });
+}
+
+// ============ MOBILE WOW: HERO TAP PULSE ============
+// Tapping the hero globe triggers a shockwave pulse through the mesh
+function initHeroTapPulse() {
+  if (!isTouch || reducedMotion) return;
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  hero.addEventListener('pointerdown', (e) => {
+    if ((e.target as HTMLElement).closest('a, button, input')) return;
+    hero.classList.remove('hero-pulse');
+    void (hero as HTMLElement).offsetWidth; // restart animation
+    hero.classList.add('hero-pulse');
+  }, { passive: true });
 }
 
 // ============ MATRIX RAIN MODE ============
@@ -711,5 +789,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initReveals();
   initCounters();
   initChess();
+  initTouchRipples();
+  initHeroTapPulse();
   await runBoot();
 });
