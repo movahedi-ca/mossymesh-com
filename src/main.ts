@@ -1,615 +1,705 @@
-/* ============================================================
-   MOSSYMESH — interactive engine
-   boot sequence · mesh canvas · cursor · terminal · chess · reveals
-   ============================================================ */
+// MOSSYMESH — NUT JOB EDITION
+// Three.js globe, audio-reactive drone, terminal games, matrix mode, physics marquee.
+import * as THREE from 'three';
 
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// ============ UTILITIES ============
+const rand = (a: number, b: number) => a + Math.random() * (b - a);
+const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------------- BOOT SEQUENCE ---------------- */
-
-const BOOT_LINES: Array<[string, string]> = [
-  ["$ mossymesh --boot --node=node-7f3a", "t-dim"],
-  ["[ok] identity ............ ed25519 keypair loaded", "t-green"],
-  ["[ok] transport ........... QUIC + LoRa radio online", "t-green"],
-  ["[ok] consensus ........... merkle-patricia trie mounted", "t-green"],
-  ["[ok] sandbox ............. WASM runtime (WAMR) ready", "t-green"],
-  ["[ok] ledger .............. 8.2 MB / 10 MB cap", "t-green"],
-  ["[..] mesh ................ scanning for peers", "t-dim"],
-  ["[ok] mesh ................ 1,247 peers discovered", "t-green"],
-  ["[ok] interop ............. gateway bridge active", "t-green"],
-  ["", "t-dim"],
-  ["WELCOME TO THE MESH. NO MASTERS HERE.", "t-green"],
+// ============ CINEMATIC BOOT ============
+const BOOT_LINES = [
+  'MOSSYMESH SECURE BOOT v3.7.1',
+  '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  '  __  __                   __  __          _     ',
+  ' |  \\/  | ___  ___ ___ _  _|  \\/  | ___ ___| |__  ',
+  ' | |\\/| |/ _ \\/ __/ __| | | | |\\/| |/ _ / __| \'_ \\ ',
+  ' | |  | | (_) \\__ \\__ \\ |_| | |  | |  __\\__ \\ | | |',
+  ' |_|  |_|\\___/|___/___/\\__, |_|  |_|\\___|___/_| |_|',
+  '                        |___/                     ',
+  'checking hardware entropy ............ OK',
+  'seeding node identity ................ OK',
+  'scanning radio spectrum .............. 4 BANDS FOUND',
+  'pinging neighbors .................... 1,247 RESPONDED',
+  'verifying ledger integrity ........... 8.2 MB OK',
+  'establishing mesh routes ............. DONE',
+  '',
+  '> WELCOME TO THE NETWORK THAT REFUSES TO DIE',
 ];
 
-function runBoot(): void {
-  const boot = document.getElementById("boot");
-  const log = document.getElementById("boot-log");
-  const fill = document.getElementById("boot-fill");
-  if (!boot || !log || !fill) return;
-
-  if (reducedMotion) {
-    boot.classList.add("done");
-    document.body.classList.add("booted");
-    return;
-  }
-
-  let i = 0;
-  const total = BOOT_LINES.length;
-  const tick = () => {
-    if (i < total) {
-      const [text, cls] = BOOT_LINES[i];
-      const div = document.createElement("div");
-      div.className = cls;
-      div.textContent = text || "\u00a0";
-      log.appendChild(div);
-      i++;
-      fill.style.width = `${Math.round((i / total) * 100)}%`;
-      setTimeout(tick, 90 + Math.random() * 160);
-    } else {
-      setTimeout(() => {
-        boot.classList.add("done");
-        document.body.classList.add("booted");
-        startReveals();
-      }, 420);
-    }
-  };
-  setTimeout(tick, 350);
+function runBoot(): Promise<void> {
+  return new Promise((resolve) => {
+    const boot = document.getElementById('boot')!;
+    const text = document.getElementById('boot-text')!;
+    const bar = document.getElementById('boot-bar')!;
+    const pct = document.getElementById('boot-pct')!;
+    if (reducedMotion) { boot.remove(); resolve(); return; }
+    let i = 0;
+    const total = BOOT_LINES.length;
+    const tick = () => {
+      if (i < total) {
+        const div = document.createElement('div');
+        div.textContent = BOOT_LINES[i];
+        if (i === total - 1) div.className = 'boot-final';
+        text.appendChild(div);
+        i++;
+        const p = Math.round((i / total) * 100);
+        bar.style.width = p + '%';
+        pct.textContent = p + '%';
+        setTimeout(tick, i > total - 4 ? 350 : rand(60, 200));
+      } else {
+        setTimeout(() => {
+          boot.classList.add('boot-done');
+          setTimeout(() => { boot.remove(); resolve(); }, 700);
+        }, 500);
+      }
+    };
+    setTimeout(tick, 400);
+  });
 }
 
-/* ---------------- MESH CANVAS ---------------- */
+// ============ THREE.JS GLOBE ============
+let globeScene: THREE.Scene, globeCamera: THREE.PerspectiveCamera, globeRenderer: THREE.WebGLRenderer;
+let globeGroup: THREE.Group, arcGroup: THREE.Group;
+let mouseX = 0, mouseY = 0;
 
-interface Node {
-  x: number; y: number;
-  vx: number; vy: number;
-  r: number;
-  hue: number;
-  pulse: number;
-  pulseSpeed: number;
-}
-
-function initMeshCanvas(): void {
-  const canvas = document.getElementById("mesh-canvas") as HTMLCanvasElement | null;
+function initGlobe() {
+  const canvas = document.getElementById('globe-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  let W = 0, H = 0, nodes: Node[] = [];
-  let mouseX = -9999, mouseY = -9999;
-  const LINK_DIST = 150;
-
+  
+  globeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  
+  globeScene = new THREE.Scene();
+  globeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  globeCamera.position.z = 4.2;
+  
+  globeGroup = new THREE.Group();
+  arcGroup = new THREE.Group();
+  globeScene.add(globeGroup, arcGroup);
+  
+  const R = 1.6;
+  const NODES = 900;
+  
+  // Node points via fibonacci sphere
+  const positions = new Float32Array(NODES * 3);
+  const nodePts: THREE.Vector3[] = [];
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < NODES; i++) {
+    const y = 1 - (i / (NODES - 1)) * 2;
+    const radius = Math.sqrt(1 - y * y);
+    const theta = goldenAngle * i;
+    const v = new THREE.Vector3(
+      Math.cos(theta) * radius * R,
+      y * R,
+      Math.sin(theta) * radius * R
+    );
+    nodePts.push(v);
+    positions.set([v.x, v.y, v.z], i * 3);
+  }
+  const nodeGeo = new THREE.BufferGeometry();
+  nodeGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const nodeMat = new THREE.PointsMaterial({
+    color: 0x00ff9d, size: 0.025, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+  });
+  globeGroup.add(new THREE.Points(nodeGeo, nodeMat));
+  
+  // Inner wireframe sphere for structure
+  const wireGeo = new THREE.IcosahedronGeometry(R * 0.98, 2);
+  const wireMat = new THREE.MeshBasicMaterial({
+    color: 0x00ff9d, wireframe: true, transparent: true, opacity: 0.07,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  globeGroup.add(new THREE.Mesh(wireGeo, wireMat));
+  
+  // Arcs between random node pairs
+  const ARCS = 60;
+  const arcMat = new THREE.LineBasicMaterial({
+    color: 0x7df9ff, transparent: true, opacity: 0.35,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  for (let i = 0; i < ARCS; i++) {
+    const a = nodePts[Math.floor(Math.random() * NODES)];
+    const b = nodePts[Math.floor(Math.random() * NODES)];
+    const mid = a.clone().add(b).multiplyScalar(0.5).normalize().multiplyScalar(R * rand(1.15, 1.5));
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+    const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(24));
+    arcGroup.add(new THREE.Line(geo, arcMat));
+  }
+  
+  // Pulse rings
+  for (let i = 0; i < 3; i++) {
+    const ringGeo = new THREE.TorusGeometry(R * (1.1 + i * 0.15), 0.004, 8, 100);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x00ff9d, transparent: true, opacity: 0.25 - i * 0.07,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2 + rand(-0.3, 0.3);
+    arcGroup.add(ring);
+  }
+  
   const resize = () => {
-    const rect = canvas.parentElement!.getBoundingClientRect();
-    W = canvas.width = rect.width;
-    H = canvas.height = rect.height;
-    seed();
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (w === 0 || h === 0) return;
+    globeRenderer.setSize(w, h, false);
+    globeCamera.aspect = w / h;
+    globeCamera.updateProjectionMatrix();
   };
-
-  const seed = () => {
-    const count = Math.min(130, Math.floor((W * H) / 14000));
-    nodes = Array.from({ length: count }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
-      r: 1.2 + Math.random() * 2.2,
-      hue: 100 + Math.random() * 40,
-      pulse: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.008 + Math.random() * 0.02,
-    }));
-  };
-
-  // mouse repel + click burst
-  canvas.parentElement!.addEventListener("mousemove", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-  });
-  canvas.parentElement!.addEventListener("mouseleave", () => {
-    mouseX = -9999; mouseY = -9999;
-  });
-  canvas.parentElement!.addEventListener("click", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
-    for (const n of nodes) {
-      const dx = n.x - cx, dy = n.y - cy;
-      const d = Math.hypot(dx, dy) || 1;
-      const force = Math.max(0, 220 - d) / 220;
-      n.vx += (dx / d) * force * 4;
-      n.vy += (dy / d) * force * 4;
-    }
-  });
-
-  let frames = 0;
-  const draw = () => {
-    ctx.clearRect(0, 0, W, H);
-
-    // links
-    for (let i = 0; i < nodes.length; i++) {
-      const a = nodes[i];
-      for (let j = i + 1; j < nodes.length; j++) {
-        const b = nodes[j];
-        const dx = a.x - b.x, dy = a.y - b.y;
-        const d = Math.hypot(dx, dy);
-        if (d < LINK_DIST) {
-          const alpha = (1 - d / LINK_DIST) * 0.28;
-          ctx.strokeStyle = `rgba(125, 255, 106, ${alpha.toFixed(3)})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-        }
-      }
-    }
-
-    // nodes
-    for (const n of nodes) {
-      // physics
-      n.x += n.vx; n.y += n.vy;
-      n.vx *= 0.995; n.vy *= 0.995;
-      // gentle drift restore
-      if (Math.abs(n.vx) < 0.08) n.vx += (Math.random() - 0.5) * 0.02;
-      if (Math.abs(n.vy) < 0.08) n.vy += (Math.random() - 0.5) * 0.02;
-      // mouse repel
-      const mdx = n.x - mouseX, mdy = n.y - mouseY;
-      const md = Math.hypot(mdx, mdy);
-      if (md < 130 && md > 0.1) {
-        n.vx += (mdx / md) * 0.6;
-        n.vy += (mdy / md) * 0.6;
-      }
-      // wrap
-      if (n.x < -20) n.x = W + 20; if (n.x > W + 20) n.x = -20;
-      if (n.y < -20) n.y = H + 20; if (n.y > H + 20) n.y = -20;
-
-      n.pulse += n.pulseSpeed;
-      const glow = 0.5 + 0.5 * Math.sin(n.pulse);
-      const rad = n.r * (1 + glow * 0.6);
-
-      const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rad * 4);
-      grad.addColorStop(0, `hsla(${n.hue}, 100%, 65%, ${0.5 + glow * 0.4})`);
-      grad.addColorStop(1, "hsla(120, 100%, 50%, 0)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, rad * 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = `hsl(${n.hue}, 100%, 72%)`;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, rad, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // data packets traveling along random links
-    if (frames % 40 === 0 && nodes.length > 1) {
-      const a = nodes[(Math.random() * nodes.length) | 0];
-      let best: Node | null = null; let bestD = LINK_DIST;
-      for (const b of nodes) {
-        if (b === a) continue;
-        const d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (d < bestD) { bestD = d; best = b; }
-      }
-      if (best) packets.push({ ax: a.x, ay: a.y, bx: best.x, by: best.y, t: 0 });
-    }
-    for (let i = packets.length - 1; i >= 0; i--) {
-      const p = packets[i];
-      p.t += 0.03;
-      if (p.t >= 1) { packets.splice(i, 1); continue; }
-      const x = p.ax + (p.bx - p.ax) * p.t;
-      const y = p.ay + (p.by - p.ay) * p.t;
-      ctx.fillStyle = "#c8ff00";
-      ctx.shadowColor = "#c8ff00";
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      ctx.arc(x, y, 2.4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    frames++;
-    if (!reducedMotion) requestAnimationFrame(draw);
-  };
-
-  interface Packet { ax: number; ay: number; bx: number; by: number; t: number }
-  const packets: Packet[] = [];
-
   resize();
-  window.addEventListener("resize", resize);
-  draw();
-
-  // node count ticker
-  const nodeCount = document.getElementById("node-count");
-  let count = 0;
-  const target = 1200 + Math.floor(Math.random() * 200);
-  const countTick = () => {
-    if (count < target) {
-      count += Math.ceil((target - count) / 24) || 1;
-      if (nodeCount) nodeCount.textContent = count.toLocaleString();
-      setTimeout(countTick, 50);
-    } else if (nodeCount) {
-      nodeCount.textContent = target.toLocaleString();
+  window.addEventListener('resize', resize);
+  
+  window.addEventListener('pointermove', (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+  }, { passive: true });
+  
+  let t = 0;
+  const animate = () => {
+    requestAnimationFrame(animate);
+    t += 0.002;
+    if (!reducedMotion) {
+      globeGroup.rotation.y += 0.0018;
+      arcGroup.rotation.y += 0.0018;
+      globeGroup.rotation.x = mouseY * 0.25;
+      globeGroup.rotation.z = mouseX * 0.1;
+      arcGroup.rotation.x = mouseY * 0.25;
+      const sy = window.scrollY / (document.body.scrollHeight || 1);
+      globeCamera.position.z = 4.2 - sy * 1.2;
+      globeGroup.scale.setScalar(1 + Math.sin(t * 2) * 0.015);
     }
+    globeRenderer.render(globeScene, globeCamera);
   };
-  setTimeout(countTick, 1800);
+  animate();
 }
 
-/* ---------------- CUSTOM CURSOR ---------------- */
+// ============ WEB AUDIO DRONE ============
+let audioCtx: AudioContext | null = null;
+let audioOn = false;
+let filterNode: BiquadFilterNode | null = null;
 
-function initCursor(): void {
-  if (window.matchMedia("(hover: none)").matches) return;
-  const dot = document.getElementById("cursor");
-  const ring = document.getElementById("cursor-ring");
-  if (!dot || !ring) return;
-
-  let rx = -100, ry = -100, tx = -100, ty = -100;
-  window.addEventListener("mousemove", (e) => {
-    tx = e.clientX; ty = e.clientY;
-    dot.style.left = `${tx}px`;
-    dot.style.top = `${ty}px`;
-  });
-  const follow = () => {
-    rx += (tx - rx) * 0.16;
-    ry += (ty - ry) * 0.16;
-    ring.style.left = `${rx}px`;
-    ring.style.top = `${ry}px`;
-    requestAnimationFrame(follow);
-  };
-  follow();
-
-  document.querySelectorAll("a, button, .crate, .doc-card, .sq").forEach((el) => {
-    el.addEventListener("mouseenter", () => ring.classList.add("hovering"));
-    el.addEventListener("mouseleave", () => ring.classList.remove("hovering"));
-  });
-}
-
-/* ---------------- SCROLL REVEALS + HEADER ---------------- */
-
-let revealsStarted = false;
-
-function startReveals(): void {
-  if (revealsStarted) return;
-  revealsStarted = true;
-  const els = document.querySelectorAll<HTMLElement>(".reveal");
-  els.forEach((el) => {
-    const d = el.dataset.delay;
-    if (d) el.style.transitionDelay = `${parseInt(d, 10) * 90}ms`;
-  });
-  if (reducedMotion || !("IntersectionObserver" in window)) {
-    els.forEach((el) => el.classList.add("visible"));
+function toggleAudio() {
+  const btn = document.getElementById('audio-toggle')!;
+  if (audioOn && audioCtx) {
+    audioCtx.suspend();
+    audioOn = false;
+    btn.textContent = 'SOUND OFF';
+    btn.classList.remove('on');
     return;
   }
+  if (!audioCtx) {
+    audioCtx = new AudioContext();
+    const master = audioCtx.createGain();
+    master.gain.value = 0.08;
+    filterNode = audioCtx.createBiquadFilter();
+    filterNode.type = 'lowpass';
+    filterNode.frequency.value = 400;
+    filterNode.Q.value = 8;
+    
+    [55, 55.5, 110.3].forEach((f, i) => {
+      const osc = audioCtx!.createOscillator();
+      osc.type = i === 2 ? 'triangle' : 'sawtooth';
+      osc.frequency.value = f;
+      const g = audioCtx!.createGain();
+      g.gain.value = i === 2 ? 0.3 : 0.5;
+      osc.connect(g).connect(filterNode!);
+      osc.start();
+    });
+    
+    const lfo = audioCtx.createOscillator();
+    lfo.frequency.value = 0.08;
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = 250;
+    lfo.connect(lfoGain).connect(filterNode.frequency);
+    lfo.start();
+    
+    const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+    const data = noiseBuf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.1;
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuf;
+    noise.loop = true;
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 800;
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.value = 0.15;
+    noise.connect(noiseFilter).connect(noiseGain).connect(filterNode);
+    noise.start();
+    
+    filterNode.connect(master).connect(audioCtx.destination);
+    
+    window.addEventListener('pointermove', (e) => {
+      if (filterNode && audioOn) {
+        const target = 200 + (1 - e.clientY / window.innerHeight) * 1800;
+        filterNode.frequency.setTargetAtTime(target, audioCtx!.currentTime, 0.1);
+      }
+    }, { passive: true });
+  }
+  audioCtx.resume();
+  audioOn = true;
+  btn.textContent = 'SOUND ON';
+  btn.classList.add('on');
+}
+
+// ============ PARTICLE CURSOR ============
+function initCursorParticles() {
+  if (reducedMotion) return;
+  const canvas = document.getElementById('cursor-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+  
+  interface P { x: number; y: number; vx: number; vy: number; life: number; size: number; }
+  const particles: P[] = [];
+  let lastX = -1, lastY = -1;
+  
+  window.addEventListener('pointermove', (e) => {
+    if (lastX >= 0) {
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      const speed = Math.hypot(dx, dy);
+      if (speed > 3 && particles.length < 150) {
+        particles.push({
+          x: e.clientX, y: e.clientY,
+          vx: rand(-1, 1) - dx * 0.02, vy: rand(-1, 1) - dy * 0.02,
+          life: 1, size: rand(1, 3.5)
+        });
+      }
+    }
+    lastX = e.clientX; lastY = e.clientY;
+  }, { passive: true });
+  
+  const loop = () => {
+    requestAnimationFrame(loop);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.96; p.vy *= 0.96;
+      p.life -= 0.025;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      ctx.fillStyle = `rgba(0, 255, 157, ${p.life * 0.7})`;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    }
+  };
+  loop();
+}
+
+// ============ MATRIX RAIN MODE ============
+let matrixActive = false;
+function triggerMatrix(duration = 12000) {
+  if (matrixActive) return;
+  matrixActive = true;
+  const overlay = document.createElement('div');
+  overlay.id = 'matrix-overlay';
+  const canvas = document.createElement('canvas');
+  overlay.appendChild(canvas);
+  const label = document.createElement('div');
+  label.className = 'matrix-label';
+  label.textContent = '// MESH OVERRIDE ENGAGED //';
+  overlay.appendChild(label);
+  document.body.appendChild(overlay);
+  
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const chars = '01アイカサタナハマヤラワ0123456789ABCDEF$#@%&';
+  const fontSize = 16;
+  const cols = Math.floor(canvas.width / fontSize);
+  const drops: number[] = Array(cols).fill(0).map(() => Math.random() * -50);
+  
+  const draw = () => {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff9d';
+    ctx.font = fontSize + 'px monospace';
+    for (let i = 0; i < cols; i++) {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  };
+  const interval = setInterval(draw, 50);
+  
+  setTimeout(() => {
+    clearInterval(interval);
+    overlay.classList.add('matrix-fade');
+    setTimeout(() => { overlay.remove(); matrixActive = false; }, 800);
+  }, duration);
+}
+
+function initKonami() {
+  const seq = ['up','up','down','down','left','right','left','right','b','a'];
+  let pos = 0;
+  const keyMap: Record<string, string> = {
+    'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right', 'b': 'b', 'a': 'a'
+  };
+  window.addEventListener('keydown', (e) => {
+    const k = keyMap[e.key.toLowerCase()] || keyMap[e.key];
+    if (!k) { pos = 0; return; }
+    pos = (k === seq[pos]) ? pos + 1 : (k === seq[0] ? 1 : 0);
+    if (pos === seq.length) {
+      pos = 0;
+      triggerMatrix(15000);
+      termPrint('> KONAMI ACCEPTED. MESH OVERRIDE ENGAGED.', 'term-green');
+    }
+  });
+}
+
+// ============ TERMINAL ============
+const termOutput = () => document.getElementById('term-output')!;
+function termPrint(text: string, cls = '') {
+  const out = termOutput();
+  const div = document.createElement('div');
+  div.className = 'term-line ' + cls;
+  div.textContent = text;
+  out.appendChild(div);
+  out.scrollTop = out.scrollHeight;
+}
+
+let snakeGame: { interval: number; active: boolean } | null = null;
+
+const COMMANDS: Record<string, (args: string[]) => void> = {
+  help: () => {
+    termPrint('  help ......... this list', 'term-dim');
+    termPrint('  status ....... mesh health report', 'term-dim');
+    termPrint('  peers ........ list neighbor nodes', 'term-dim');
+    termPrint('  ledger ....... inspect the edge ledger', 'term-dim');
+    termPrint('  join ......... join the mesh', 'term-dim');
+    termPrint('  chess ........ deterministic chess demo', 'term-dim');
+    termPrint('  snake ........ play snake (arrows/WASD, Q quits)', 'term-dim');
+    termPrint('  matrix ....... digital rain takeover', 'term-dim');
+    termPrint('  hack ......... breach a corporate node', 'term-dim');
+    termPrint('  sudo ......... nice try', 'term-dim');
+    termPrint('  clear ........ wipe the terminal', 'term-dim');
+  },
+  status: () => {
+    termPrint('MESH STATUS: OPERATIONAL', 'term-green');
+    termPrint('  uptime ......... 99.98% (this node)', 'term-dim');
+    termPrint('  latency ........ 12ms median', 'term-dim');
+    termPrint('  ledger ......... 8.2 MB / 10 MB cap', 'term-dim');
+    termPrint('  consensus ...... 2,847 rounds, 0 forks', 'term-dim');
+    termPrint('  threat level ... CORPORATIONS ANGRY', 'term-amber');
+  },
+  peers: () => {
+    const peers = ['phone-7f3a (android, 4km)', 'pi-zero-2w (lorawan, 12km)', 'thinkpad-x230 (wifi, 0.3km)', 'esp32-relay-9 (ble, 800m)', 'old-dell-closet (ethernet, local)'];
+    termPrint('NEIGHBOR NODES:', 'term-green');
+    peers.forEach(p => termPrint('  [+] ' + p, 'term-dim'));
+  },
+  ledger: () => {
+    termPrint('EDGE LEDGER (last 4 entries):', 'term-green');
+    termPrint('  #2847 chess.e2e4 ......... VERIFIED', 'term-dim');
+    termPrint('  #2846 job.render.44 ...... VERIFIED', 'term-dim');
+    termPrint('  #2845 route.update ....... VERIFIED', 'term-dim');
+    termPrint('  #2844 sensor.temp ........ VERIFIED', 'term-dim');
+  },
+  join: () => {
+    termPrint('> generating node identity...', 'term-dim');
+    setTimeout(() => termPrint('> identity: node-' + Math.random().toString(36).slice(2, 8), 'term-green'), 400);
+    setTimeout(() => termPrint('> scanning for neighbors...', 'term-dim'), 800);
+    setTimeout(() => termPrint('> CONNECTED. Welcome to the mesh, node.', 'term-green'), 1400);
+  },
+  chess: () => {
+    termPrint('> deterministic chess demo loaded below', 'term-dim');
+    document.getElementById('chess')?.scrollIntoView({ behavior: 'smooth' });
+  },
+  matrix: () => { triggerMatrix(); termPrint('> MESH OVERRIDE ENGAGED', 'term-green'); },
+  snake: () => startSnake(),
+  hack: () => {
+    termPrint('> targeting corp-node-447...', 'term-amber');
+    const steps = ['bypassing firewall', 'spoofing credentials', 'escalating privileges', 'exfiltrating secrets'];
+    steps.forEach((s, i) => {
+      setTimeout(() => termPrint(`  [${i + 1}/4] ${s}... OK`, 'term-dim'), 600 * (i + 1));
+    });
+    setTimeout(() => {
+      termPrint('> ACCESS GRANTED. Just kidding. This is a demo.', 'term-green');
+      termPrint('> But the mesh this runs on? That part is real.', 'term-dim');
+    }, 600 * 5);
+  },
+  sudo: () => termPrint('> nice try. there are no masters here.', 'term-amber'),
+  clear: () => { termOutput().innerHTML = ''; },
+};
+
+function initTerminal() {
+  const input = document.getElementById('term-input') as HTMLInputElement;
+  termPrint('MOSSYMESH TERMINAL v3.7.1 — type "help"', 'term-green');
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const raw = input.value.trim().toLowerCase();
+      if (raw) {
+        termPrint('$ ' + raw, 'term-prompt');
+        const [cmd, ...args] = raw.split(/\s+/);
+        if (COMMANDS[cmd]) COMMANDS[cmd](args);
+        else termPrint(`> unknown command: ${cmd}. type "help".`, 'term-red');
+      }
+      input.value = '';
+    }
+  });
+  document.getElementById('terminal')?.addEventListener('click', () => input.focus());
+}
+
+function startSnake() {
+  if (snakeGame?.active) { termPrint('> snake already running', 'term-amber'); return; }
+  termPrint('> SNAKE: arrows/WASD to move, Q to quit', 'term-green');
+  const W = 24, H = 12;
+  let snake = [{ x: 12, y: 6 }];
+  let dir = { x: 1, y: 0 };
+  let food = { x: 18, y: 6 };
+  let score = 0;
+  
+  const render = () => {
+    let grid = '';
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (snake[0].x === x && snake[0].y === y) grid += '█';
+        else if (snake.some(s => s.x === x && s.y === y)) grid += '▓';
+        else if (food.x === x && food.y === y) grid += '●';
+        else grid += '·';
+      }
+      grid += '\n';
+    }
+    return grid + `score: ${score}`;
+  };
+  
+  const pre = document.createElement('pre');
+  pre.className = 'term-line term-green snake-board';
+  termOutput().appendChild(pre);
+  
+  const keyHandler = (e: KeyboardEvent) => {
+    const k = e.key.toLowerCase();
+    if (k === 'q') { end(); return; }
+    if ((k === 'arrowup' || k === 'w') && dir.y !== 1) dir = { x: 0, y: -1 };
+    else if ((k === 'arrowdown' || k === 's') && dir.y !== -1) dir = { x: 0, y: 1 };
+    else if ((k === 'arrowleft' || k === 'a') && dir.x !== 1) dir = { x: -1, y: 0 };
+    else if ((k === 'arrowright' || k === 'd') && dir.x !== -1) dir = { x: 1, y: 0 };
+    e.preventDefault();
+  };
+  window.addEventListener('keydown', keyHandler);
+  
+  const end = () => {
+    if (snakeGame) clearInterval(snakeGame.interval);
+    window.removeEventListener('keydown', keyHandler);
+    snakeGame = null;
+    termPrint(`> game over. score: ${score}`, 'term-amber');
+  };
+  
+  const step = () => {
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    if (head.x < 0 || head.x >= W || head.y < 0 || head.y >= H || snake.some(s => s.x === head.x && s.y === head.y)) {
+      end(); return;
+    }
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score += 10;
+      food = { x: Math.floor(Math.random() * W), y: Math.floor(Math.random() * H) };
+    } else snake.pop();
+    pre.textContent = render();
+    termOutput().scrollTop = termOutput().scrollHeight;
+  };
+  
+  pre.textContent = render();
+  snakeGame = { interval: window.setInterval(step, 140), active: true };
+}
+
+// ============ DRAGGABLE PHYSICS MARQUEE ============
+function initDragMarquee() {
+  const el = document.getElementById('marquee-inner');
+  if (!el || reducedMotion) return;
+  let x = 0, vx = -1.2, dragging = false, lastPX = 0, lastT = 0;
+  
+  const frame = () => {
+    requestAnimationFrame(frame);
+    if (!dragging) {
+      x += vx;
+      vx *= 0.995;
+      if (Math.abs(vx) < 0.4) vx = -1.2;
+      const w = el.scrollWidth / 2;
+      if (x < -w) x += w;
+      if (x > 0) x -= w;
+      el.style.transform = `translateX(${x}px)`;
+    }
+  };
+  frame();
+  
+  el.style.cursor = 'grab';
+  el.addEventListener('pointerdown', (e) => {
+    dragging = true; lastPX = e.clientX; lastT = performance.now();
+    el.style.cursor = 'grabbing';
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastPX;
+    x += dx;
+    const now = performance.now();
+    vx = dx / Math.max(1, now - lastT) * 16;
+    lastPX = e.clientX; lastT = now;
+    el.style.transform = `translateX(${x}px)`;
+  });
+  const release = () => { dragging = false; el.style.cursor = 'grab'; vx = clamp(vx, -25, 25); };
+  el.addEventListener('pointerup', release);
+  el.addEventListener('pointercancel', release);
+}
+
+// ============ GLITCH BURSTS ============
+function initGlitchBursts() {
+  if (reducedMotion) return;
+  const heroTitle = document.getElementById('hero-title');
+  if (!heroTitle) return;
+  const burst = () => {
+    if (!document.hidden) {
+      heroTitle.classList.add('glitching');
+      setTimeout(() => heroTitle.classList.remove('glitching'), rand(150, 400));
+    }
+    setTimeout(burst, rand(4000, 8000));
+  };
+  setTimeout(burst, 3000);
+}
+
+// ============ SCROLL REVEALS ============
+function initReveals() {
+  const els = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
-    for (const e of entries) {
+    entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.classList.add("visible");
+        e.target.classList.add('revealed');
         io.unobserve(e.target);
       }
-    }
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-  els.forEach((el) => io.observe(el));
+    });
+  }, { threshold: 0.12 });
+  els.forEach(el => io.observe(el));
 }
 
-function initHeader(): void {
-  const header = document.getElementById("site-header");
-  if (!header) return;
-  let lastY = 0;
-  window.addEventListener("scroll", () => {
-    const y = window.scrollY;
-    if (y > 400 && y > lastY) header.classList.add("hidden");
-    else header.classList.remove("hidden");
-    lastY = y;
-  }, { passive: true });
-
-  const burger = document.getElementById("nav-burger");
-  const links = document.querySelector(".nav-links");
-  burger?.addEventListener("click", () => {
-    const open = burger.getAttribute("aria-expanded") === "true";
-    burger.setAttribute("aria-expanded", String(!open));
-    if (links) (links as HTMLElement).style.display = open ? "" : "flex";
-  });
-}
-
-/* ---------------- COUNTERS ---------------- */
-
-function initCounters(): void {
-  const nums = document.querySelectorAll<HTMLElement>(".stat-num[data-count]");
+// ============ COUNTERS ============
+function initCounters() {
+  const els = document.querySelectorAll('[data-count]');
   const io = new IntersectionObserver((entries) => {
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
       const el = e.target as HTMLElement;
-      const target = parseInt(el.dataset.count || "0", 10);
-      let cur = 0;
-      const step = () => {
-        cur += Math.max(1, Math.ceil((target - cur) / 12));
-        if (cur >= target) { el.textContent = String(target); return; }
-        el.textContent = String(cur);
-        requestAnimationFrame(step);
-      };
-      if (reducedMotion) el.textContent = String(target);
-      else step();
       io.unobserve(el);
-    }
-  }, { threshold: 0.5 });
-  nums.forEach((n) => io.observe(n));
-}
-
-/* ---------------- TELEMETRY ---------------- */
-
-function initTelemetry(): void {
-  const lat = document.getElementById("tele-lat");
-  const peers = document.getElementById("tele-peers");
-  const uptime = document.getElementById("tele-uptime");
-  const start = Date.now();
-  setInterval(() => {
-    if (lat) lat.textContent = String(8 + Math.floor(Math.random() * 42));
-    if (peers) peers.textContent = String(1180 + Math.floor(Math.random() * 90));
-    if (uptime) {
-      const s = Math.floor((Date.now() - start) / 1000);
-      const h = String(Math.floor(s / 3600)).padStart(2, "0");
-      const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
-      const ss = String(s % 60).padStart(2, "0");
-      uptime.textContent = `${h}:${m}:${ss}`;
-    }
-  }, 2000);
-}
-
-/* ---------------- TERMINAL ---------------- */
-
-const TERM_COMMANDS: Record<string, (args: string[]) => string> = {
-  help: () => [
-    "Available commands:",
-    "  help ............ this list",
-    "  status .......... mesh health snapshot",
-    "  join ............ register this browser as a node",
-    "  peers ........... list nearby peers",
-    "  ledger .......... show ledger stats",
-    "  chess ........... the determinism proof",
-    "  hack ............ try it and find out",
-    "  sudo ............ nice try",
-    "  clear ........... wipe the terminal",
-  ].join("\n"),
-  status: () => [
-    "MESH STATUS ......................... <span class='t-green'>OPERATIONAL</span>",
-    "peers online ........................ 1,247",
-    "ledger size ....................... 8.2 MB / 10 MB",
-    "unverifiable outputs .............. 0.3%",
-    "job timeout (unstable RF) ......... 2.1%",
-    "central servers ................... 0",
-    "masters ........................... 0",
-  ].join("\n"),
-  join: () => [
-    "Generating ed25519 identity ......... <span class='t-green'>done</span>",
-    "Node ID: <span class='t-cyan'>7f3a:9c2e:41bd:08f1:77aa:33c9:de50:12bc</span>",
-    "Announcing to 1,247 peers ........... <span class='t-green'>done</span>",
-    "",
-    "<span class='t-green'>Welcome to the mesh, node-7f3a.</span>",
-    "No masters here. Pull your weight.",
-  ].join("\n"),
-  peers: () => [
-    "NEARBY PEERS (kademlia, 8 closest):",
-    "  <span class='t-cyan'>a1f0:...</span>  phone · QUIC · 12ms",
-    "  <span class='t-cyan'>b822:...</span>  rpi-4 · LoRa · 340ms",
-    "  <span class='t-cyan'>c3d9:...</span>  laptop · QUIC · 28ms",
-    "  <span class='t-cyan'>d4e1:...</span>  rpi-zero · LoRa · 510ms",
-    "  <span class='t-cyan'>e5f2:...</span>  phone · QUIC · 19ms",
-    "  <span class='t-cyan'>f6a3:...</span>  server · QUIC · 8ms",
-    "  <span class='t-cyan'>07b4:...</span>  radio · LoRa · 890ms",
-    "  <span class='t-cyan'>18c5:...</span>  laptop · QUIC · 33ms",
-  ].join("\n"),
-  ledger: () => [
-    "LEDGER ............................ merkle-patricia trie",
-    "active size ....................... 8.2 MB",
-    "cap ............................... 10 MB",
-    "root .............................. <span class='t-cyan'>9f2c:41aa:...</span>",
-    "entries ........................... 48,211",
-    "proofs verified ................... 48,211 <span class='t-green'>(100%)</span>",
-  ].join("\n"),
-  chess: () => [
-    "The Chess PoC: two devices, zero trust, one board.",
-    "Every move is a CRDT op. Every position is a trie root.",
-    "Engine eval runs identically on-device and in the WASM sandbox.",
-    "Target throughput: ~836 Mnps. Scroll up and play the demo.",
-  ].join("\n"),
-  hack: () => [
-    "<span class='t-amber'>INTRUSION DETECTED</span> ... just kidding.",
-    "This is a static site. There's nothing to hack.",
-    "The mesh, on the other hand — <span class='t-green'>good luck.</span>",
-    "Every job is sandboxed WASM. Every state change is a signed CRDT op.",
-    "Bring a quantum computer and we'll talk.",
-  ].join("\n"),
-  sudo: () => "Nice try. There is no root on the mesh. There is no root <span class='t-green'>anywhere.</span>",
-  matrix: () => "Wake up, Neo... the mesh has you. Follow the white rabbit. 🐇",
-  hello: () => "Hello, node. The mesh sees you.",
-};
-
-function initTerminal(): void {
-  const body = document.getElementById("term-body");
-  const input = document.getElementById("term-input") as HTMLInputElement | null;
-  const term = document.getElementById("terminal");
-  if (!body || !input || !term) return;
-
-  const print = (html: string, cls = "") => {
-    const div = document.createElement("div");
-    if (cls) div.className = cls;
-    div.innerHTML = html;
-    body.appendChild(div);
-    body.scrollTop = body.scrollHeight;
-  };
-
-  print("MossyMesh node terminal — v1.0.0", "t-dim");
-  print("Type <span class='t-green'>help</span> to begin. Type <span class='t-amber'>hack</span> if you're feeling lucky.", "t-dim");
-  print("", "");
-
-  term.addEventListener("click", () => input.focus());
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-    const raw = input.value.trim();
-    print(`<span class='t-green'>mesh@node-7f3a:~$</span> ${escapeHtml(raw)}`);
-    input.value = "";
-    if (!raw) return;
-    const [cmd, ...args] = raw.toLowerCase().split(/\s+/);
-    if (cmd === "clear") { body.innerHTML = ""; return; }
-    const fn = TERM_COMMANDS[cmd];
-    if (fn) print(fn(args));
-    else print(`command not found: ${escapeHtml(cmd)} — try <span class='t-green'>help</span>`, "t-red");
+      const target = parseFloat(el.dataset.count!);
+      const dur = 1600, t0 = performance.now();
+      const step = (t: number) => {
+        const p = clamp((t - t0) / dur, 0, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = (target * eased).toFixed(target % 1 ? 1 : 0);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
   });
+  els.forEach(el => io.observe(el));
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-/* ---------------- CHESS DEMO ---------------- */
-
-const GLYPHS: Record<string, string> = {
-  K: "♚", Q: "♛", R: "♜", B: "♝", N: "♞", P: "♟",
-  k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟",
-};
-
-function initChessDemo(): void {
-  const boardEl = document.getElementById("demo-board");
-  if (!boardEl) return;
-
-  // minimal chess: startpos, legal-ish moves for demo (pawns + knights + king safety ignored)
-  let board: (string | null)[][] = startPos();
+// ============ CHESS (simplified demo) ============
+function initChess() {
+  const board = document.getElementById('chess-board');
+  if (!board) return;
+  const PIECES: Record<string, string> = {
+    r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟',
+    R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔', P: '♙'
+  };
+  const state: string[][] = [
+    ['r','n','b','q','k','b','n','r'],
+    ['p','p','p','p','p','p','p','p'],
+    ['','','','','','','',''],
+    ['','','','','','','',''],
+    ['','','','','','','',''],
+    ['','','','','','','',''],
+    ['P','P','P','P','P','P','P','P'],
+    ['R','N','B','Q','K','B','N','R'],
+  ];
   let selected: [number, number] | null = null;
-  let turn: "w" | "b" = "w";
-  let lastMove: [[number, number], [number, number]] | null = null;
-
+  let turn: 'w' | 'b' = 'w';
+  
   const render = () => {
-    boardEl.innerHTML = "";
+    board.innerHTML = '';
+    state.forEach((row, r) => {
+      row.forEach((cell, c) => {
+        const sq = document.createElement('button');
+        sq.className = 'chess-sq' + ((r + c) % 2 ? ' dark' : '');
+        if (selected && selected[0] === r && selected[1] === c) sq.classList.add('sel');
+        sq.textContent = PIECES[cell] || '';
+        sq.setAttribute('aria-label', `square ${r},${c} ${cell || 'empty'}`);
+        sq.addEventListener('click', () => onClick(r, c));
+        board.appendChild(sq);
+      });
+    });
+    const status = document.getElementById('chess-status');
+    if (status) status.textContent = turn === 'w' ? 'WHITE TO MOVE — click a piece, then a target' : 'MESH ENGINE THINKING…';
+  };
+  
+  const isWhite = (p: string) => p === p.toUpperCase() && p !== '';
+  
+  const onClick = (r: number, c: number) => {
+    const piece = state[r][c];
+    if (selected) {
+      const [sr, sc] = selected;
+      if (sr === r && sc === c) { selected = null; render(); return; }
+      state[r][c] = state[sr][sc];
+      state[sr][sc] = '';
+      selected = null;
+      turn = 'b';
+      render();
+      setTimeout(engineMove, 700);
+    } else if (piece && isWhite(piece) && turn === 'w') {
+      selected = [r, c];
+      render();
+    }
+  };
+  
+  const engineMove = () => {
     for (let r = 0; r < 8; r++) {
-      for (let f = 0; f < 8; f++) {
-        const sq = document.createElement("div");
-        sq.className = `sq ${((r + f) % 2 === 0) ? "light" : "dark"}`;
-        const piece = board[r][f];
-        if (piece) {
-          sq.textContent = GLYPHS[piece] || piece;
-          sq.style.color = piece === piece.toUpperCase() ? "#e8f0e6" : "#7dff6a";
-          sq.style.textShadow = piece === piece.toUpperCase()
-            ? "0 2px 6px rgba(0,0,0,.7)"
-            : "0 0 12px rgba(125,255,106,.5)";
+      for (let c = 0; c < 8; c++) {
+        const p = state[r][c];
+        if (p && !isWhite(p) && r + 1 < 8 && !state[r + 1][c]) {
+          state[r + 1][c] = p;
+          state[r][c] = '';
+          turn = 'w';
+          render();
+          return;
         }
-        if (selected && selected[0] === r && selected[1] === f) sq.classList.add("selected");
-        if (lastMove && ((lastMove[0][0] === r && lastMove[0][1] === f) || (lastMove[1][0] === r && lastMove[1][1] === f))) {
-          sq.classList.add("last-move");
-        }
-        if (selected && !piece && isLegalDemoMove(selected, [r, f])) sq.classList.add("legal");
-        if (selected && piece && isLegalDemoMove(selected, [r, f])) sq.classList.add("legal");
-        sq.addEventListener("click", () => onClick(r, f));
-        boardEl.appendChild(sq);
       }
     }
-  };
-
-  const onClick = (r: number, f: number) => {
-    const piece = board[r][f];
-    const isOwn = piece && ((turn === "w") === (piece === piece.toUpperCase()));
-    if (selected && isLegalDemoMove(selected, [r, f])) {
-      const [sr, sf] = selected;
-      board[r][f] = board[sr][sf];
-      board[sr][sf] = null;
-      lastMove = [[sr, sf], [r, f]];
-      selected = null;
-      turn = turn === "w" ? "b" : "w";
-      // fake "publish to mesh" flash
-      boardEl.style.boxShadow = "0 0 90px rgba(125,255,106,.35), inset 0 0 40px rgba(0,0,0,.5)";
-      setTimeout(() => { boardEl.style.boxShadow = ""; }, 350);
-    } else if (isOwn) {
-      selected = (selected && selected[0] === r && selected[1] === f) ? null : [r, f];
-    } else {
-      selected = null;
-    }
+    turn = 'w';
     render();
   };
-
-  // demo-legal: any piece moves like a queen one step, pawns move forward 1 (or 2 from start), knights jump
-  const isLegalDemoMove = (from: [number, number], to: [number, number]): boolean => {
-    const [sr, sf] = from; const [r, f] = to;
-    if (sr === r && sf === f) return false;
-    const piece = board[sr][sf];
-    if (!piece) return false;
-    const target = board[r][f];
-    if (target && ((turn === "w") === (target === target.toUpperCase()))) return false;
-    const dr = r - sr, df = f - sf;
-    const p = piece.toLowerCase();
-    const dir = piece === piece.toUpperCase() ? -1 : 1; // white moves up (decreasing row)
-    if (p === "p") {
-      if (df === 0 && !target) {
-        if (dr === dir) return true;
-        const startRow = piece === piece.toUpperCase() ? 6 : 1;
-        if (sr === startRow && dr === 2 * dir && !board[sr + dir][sf]) return true;
-      }
-      if (Math.abs(df) === 1 && dr === dir && target) return true;
-      return false;
-    }
-    if (p === "n") {
-      return (Math.abs(dr) === 2 && Math.abs(df) === 1) || (Math.abs(dr) === 1 && Math.abs(df) === 2);
-    }
-    // king/queen/rook/bishop: one step any direction (demo simplification)
-    return Math.abs(dr) <= 1 && Math.abs(df) <= 1;
-  };
-
+  
   render();
 }
 
-function startPos(): (string | null)[][] {
-  const back: string[] = ["r", "n", "b", "q", "k", "b", "n", "r"];
-  const b: (string | null)[][] = Array.from({ length: 8 }, () => Array(8).fill(null));
-  for (let f = 0; f < 8; f++) {
-    b[0][f] = back[f];
-    b[1][f] = "p";
-    b[6][f] = "P";
-    b[7][f] = back[f].toUpperCase();
-  }
-  return b;
-}
-
-/* ---------------- MARQUEE: duplicate for seamless loop ---------------- */
-
-function initMarquee(): void {
-  const track = document.getElementById("marquee-track");
-  if (!track) return;
-  track.innerHTML += track.innerHTML;
-}
-
-/* ---------------- CRATE hover glow follows mouse ---------------- */
-
-function initCrateGlow(): void {
-  document.querySelectorAll<HTMLElement>(".crate").forEach((c) => {
-    c.addEventListener("mousemove", (e) => {
-      const rect = c.getBoundingClientRect();
-      c.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-      c.style.setProperty("--my", `${e.clientY - rect.top}px`);
-    });
+// ============ NAV / MISC ============
+function initNav() {
+  const burger = document.getElementById('nav-burger')!;
+  const nav = document.querySelector('.nav-links')!;
+  burger.addEventListener('click', () => {
+    nav.classList.toggle('open');
+    burger.classList.toggle('x');
+  });
+  document.getElementById('audio-toggle')?.addEventListener('click', toggleAudio);
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'm' && !(e.target as HTMLElement).matches('input')) toggleAudio();
   });
 }
 
-/* ---------------- GLITCH auto-trigger on hero ---------------- */
-
-function initGlitch(): void {
-  const el = document.querySelector(".hero-title .glitch");
-  if (!el || reducedMotion) return;
-  setInterval(() => {
-    el.classList.add("auto");
-    setTimeout(() => el.classList.remove("auto"), 420);
-  }, 4200);
-}
-
-/* ---------------- BOOT ---------------- */
-
-document.addEventListener("DOMContentLoaded", () => {
-  runBoot();
-  initMeshCanvas();
-  initCursor();
-  initHeader();
-  initCounters();
-  initTelemetry();
+// ============ BOOT ============
+document.addEventListener('DOMContentLoaded', async () => {
+  initNav();
+  initGlobe();
+  initCursorParticles();
+  initKonami();
   initTerminal();
-  initChessDemo();
-  initMarquee();
-  initCrateGlow();
-  initGlitch();
-  // if boot already done (reduced motion), start reveals now
-  if (reducedMotion) startReveals();
+  initDragMarquee();
+  initGlitchBursts();
+  initReveals();
+  initCounters();
+  initChess();
+  await runBoot();
 });
