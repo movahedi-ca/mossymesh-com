@@ -8,6 +8,7 @@
     "name": "Offline-capable chess",
     "engine": "shakmaty",
     "target_mnps": 836,
+    "target_mnps_note": "design target, not a measured result",
     "purpose": "Stress-test perfect state-transition determinism across heterogeneous hardware"
   },
   "github": {
@@ -63,6 +64,7 @@
     "openapi": "/openapi.yaml",
     "api_catalog": "/api/index.json",
     "docs_human": "/developers.html",
+    "deep_dive": "/deep-dive.html",
     "product_contracts": "https://github.com/movahedi-ca/MossyMesh/blob/main/docs/interface-contracts.md"
   }
 }

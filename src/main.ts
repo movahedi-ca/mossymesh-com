@@ -462,15 +462,17 @@ const COMMANDS: Record<string, (args: string[]) => void> = {
     termPrint('  matrix ....... digital rain takeover', 'term-dim');
     termPrint('  hack ......... breach a corporate node', 'term-dim');
     termPrint('  sudo ......... nice try', 'term-dim');
+    termPrint('  vdf .......... mint a Job DID (illustrative)', 'term-dim');
     termPrint('  clear ........ wipe the terminal', 'term-dim');
   },
   status: () => {
     termPrint('MESH STATUS: [SIMULATED DEMO OUTPUT]', 'term-amber');
-    termPrint('  This terminal is a fiction. No real mesh exists yet.', 'term-dim');
-    termPrint('  What we are actually building toward:', 'term-dim');
+    termPrint('  This terminal is a fiction. No public mesh runs yet.', 'term-dim');
+    termPrint('  In the lab: two live daemons already peer over TCP.', 'term-dim');
+    termPrint('  What ships next:', 'term-dim');
     termPrint('    ledger cap ... under 10 MB on device', 'term-dim');
     termPrint('    sync ......... CRDT merge, no central server', 'term-dim');
-    termPrint('    transport .... Bluetooth LE / Wi-Fi Direct', 'term-dim');
+    termPrint('    transport .... Kademlia DHT, BLE, LoRa', 'term-dim');
   },
   peers: () => {
     termPrint('[SIMULATED] No real peers. This is a demo terminal.', 'term-amber');
@@ -505,6 +507,21 @@ const COMMANDS: Record<string, (args: string[]) => void> = {
     }, 600 * 5);
   },
   sudo: () => termPrint('> nice try. there are no masters here.', 'term-amber'),
+  vdf: () => {
+    termPrint('> minting ephemeral Job DID (Wesolowski, RSA-2048)...', 'term-dim');
+    termPrint('> 50,000,000 sequential steps. real burn: ~10 min. this terminal: 3s (illustrative).', 'term-amber');
+    let p = 0;
+    const iv = setInterval(() => {
+      p += 25;
+      if (p >= 100) {
+        clearInterval(iv);
+        termPrint('> DONE. job DID 9f3a...c41d verified in 3 ms.', 'term-green');
+        termPrint('> faking 10,000 identities just got ~70 days more expensive.', 'term-dim');
+      } else {
+        termPrint(`> grinding... ${p}%`, 'term-dim');
+      }
+    }, 750);
+  },
   clear: () => { termOutput().innerHTML = ''; },
 };
 
@@ -785,5 +802,317 @@ document.addEventListener('DOMContentLoaded', async () => {
   initChess();
   initTouchRipples();
   initHeroTapPulse();
+  initTopo();
+  initSandboxDemo();
+  initFoldDemo();
+  initVdfDemo();
   await runBoot();
 });
+
+/* ============================================================
+   TRANSFORM: interactive diagrams (topology, sandbox, ledger, VDF)
+   ============================================================ */
+
+function setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D | null {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return ctx;
+}
+
+/* (reducedMotion boolean is declared at the top of this file; reused below) */
+
+/* --- 03: TWO INTERNETS --- */
+function initTopo(): void {
+  const oldC = document.getElementById('topo-old') as HTMLCanvasElement | null;
+  const meshC = document.getElementById('topo-mesh') as HTMLCanvasElement | null;
+  if (!oldC && !meshC) return;
+
+  if (oldC) {
+    const ctx = setupCanvas(oldC);
+    if (ctx) {
+      const W = oldC.getBoundingClientRect().width, H = 260;
+      const stops = [
+        { x: W * 0.08, label: 'YOU' },
+        { x: W * 0.38, label: 'DNS', throat: true },
+        { x: W * 0.64, label: 'CLOUD', throat: true },
+        { x: W * 0.92, label: 'PEER' },
+      ];
+      let t = 0;
+      const draw = () => {
+        ctx.clearRect(0, 0, W, H);
+        const y = H / 2;
+        ctx.strokeStyle = 'rgba(0,229,255,0.25)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(stops[0].x, y); ctx.lineTo(stops[stops.length - 1].x, y); ctx.stroke();
+        for (const s of stops) {
+          ctx.fillStyle = s.throat ? 'rgba(255,51,85,0.12)' : 'rgba(125,255,106,0.08)';
+          ctx.strokeStyle = s.throat ? '#ff3355' : '#7dff6a';
+          ctx.beginPath(); ctx.arc(s.x, y, 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          if (s.throat) {
+            ctx.strokeStyle = '#ff3355'; ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(s.x - 8, y - 28); ctx.lineTo(s.x + 8, y - 12);
+            ctx.moveTo(s.x + 8, y - 28); ctx.lineTo(s.x - 8, y - 12);
+            ctx.stroke(); ctx.lineWidth = 2;
+          }
+          ctx.fillStyle = '#c8d4c0';
+          ctx.font = '10px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(s.label, s.x, y + 44);
+        }
+        // packet
+        const seg = Math.floor(t) % 3;
+        const f = t % 1;
+        const px = stops[seg].x + (stops[seg + 1].x - stops[seg].x) * f;
+        ctx.fillStyle = '#00e5ff';
+        ctx.beginPath(); ctx.arc(px, y, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(0,229,255,0.25)';
+        ctx.beginPath(); ctx.arc(px, y, 11, 0, Math.PI * 2); ctx.fill();
+      };
+      draw();
+      if (!reducedMotion) {
+        setInterval(() => { t += 0.012; draw(); }, 50);
+      }
+    }
+  }
+
+  if (meshC) {
+    const ctx = setupCanvas(meshC);
+    if (ctx) {
+      const W = meshC.getBoundingClientRect().width, H = 260;
+      interface N { x: number; y: number; dead: boolean; deathT: number }
+      const nodes: N[] = [];
+      let seed = 42;
+      const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+      for (let i = 0; i < 14; i++) {
+        nodes.push({ x: 20 + rnd() * (W - 40), y: 20 + rnd() * (H - 40), dead: false, deathT: 0 });
+      }
+      const src = nodes[0];
+      const dst = nodes[nodes.length - 1];
+      let path: N[] = [];
+      const dist = (a: N, b: N) => Math.hypot(a.x - b.x, a.y - b.y);
+      const route = (from: N): N[] => {
+        const p: N[] = [from];
+        const seen = new Set<N>([from]);
+        let cur = from;
+        let guard = 0;
+        while (cur !== dst && guard++ < 30) {
+          let best: N | null = null; let bd = Infinity;
+          for (const n of nodes) {
+            if (n.dead || seen.has(n)) continue;
+            const d = dist(n, dst);
+            if (d < bd) { bd = d; best = n; }
+          }
+          if (!best || bd >= dist(cur, dst) - 1) {
+            // greedy stuck: pick nearest alive unvisited
+            let nb: N | null = null; let nd = Infinity;
+            for (const n of nodes) {
+              if (n.dead || seen.has(n)) continue;
+              const d = dist(cur, n);
+              if (d < nd) { nd = d; nb = n; }
+            }
+            if (!nb) break;
+            best = nb;
+          }
+          p.push(best); seen.add(best); cur = best;
+        }
+        return p;
+      };
+      path = route(src);
+      let hopF = 0; let killT = 0;
+      const draw = () => {
+        ctx.clearRect(0, 0, W, H);
+        // links between near nodes
+        ctx.strokeStyle = 'rgba(125,255,106,0.14)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+          if (nodes[i].dead || nodes[j].dead) continue;
+          if (dist(nodes[i], nodes[j]) < 110) {
+            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+          }
+        }
+        // path
+        if (path.length > 1) {
+          ctx.strokeStyle = 'rgba(0,229,255,0.5)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(path[0].x, path[0].y);
+          for (const n of path) ctx.lineTo(n.x, n.y);
+          ctx.stroke(); ctx.lineWidth = 1;
+          const hi = Math.min(Math.floor(hopF), path.length - 2);
+          const f = hopF - Math.floor(hopF);
+          const a = path[Math.max(0, hi)], b = path[Math.min(path.length - 1, hi + 1)];
+          const px = a.x + (b.x - a.x) * f, py = a.y + (b.y - a.y) * f;
+          ctx.fillStyle = '#00e5ff';
+          ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+        }
+        for (const n of nodes) {
+          const isDst = n === dst, isSrc = n === src;
+          if (n.dead) {
+            ctx.strokeStyle = 'rgba(255,51,85,0.7)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(n.x - 7, n.y - 7); ctx.lineTo(n.x + 7, n.y + 7);
+            ctx.moveTo(n.x + 7, n.y - 7); ctx.lineTo(n.x - 7, n.y + 7);
+            ctx.stroke(); ctx.lineWidth = 1;
+            continue;
+          }
+          ctx.fillStyle = isDst ? 'rgba(125,255,106,0.25)' : isSrc ? 'rgba(0,229,255,0.2)' : 'rgba(125,255,106,0.08)';
+          ctx.strokeStyle = isDst ? '#7dff6a' : isSrc ? '#00e5ff' : 'rgba(125,255,106,0.5)';
+          ctx.beginPath(); ctx.arc(n.x, n.y, isDst || isSrc ? 9 : 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        }
+        ctx.fillStyle = '#c8d4c0';
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('PUBLIC KEY 7f3a...', dst.x, Math.min(H - 8, dst.y + 24));
+      };
+      draw();
+      if (!reducedMotion) {
+        setInterval(() => {
+          hopF += 0.03;
+          if (hopF >= path.length - 1) { hopF = 0; }
+          killT++;
+          if (killT > 120) {
+            killT = 0;
+            const alive = nodes.filter(n => n !== src && n !== dst && !n.dead);
+            // revive all dead first so the mesh heals, then kill one
+            for (const n of nodes) n.dead = false;
+            if (alive.length > 2) {
+              const victim = alive[Math.floor(Math.random() * alive.length)];
+              victim.dead = true;
+            }
+            path = route(src);
+            hopF = 0;
+          }
+          draw();
+        }, 50);
+      }
+    }
+  }
+}
+
+/* --- 05: SANDBOX memory cage --- */
+function initSandboxDemo(): void {
+  const fill = document.getElementById('mem-fill');
+  const label = document.getElementById('mem-label');
+  const status = document.getElementById('mem-status');
+  const log = document.getElementById('mem-log');
+  const safeBtn = document.getElementById('mem-safe');
+  const killBtn = document.getElementById('mem-kill');
+  if (!fill || !label || !status || !log || !safeBtn || !killBtn) return;
+
+  const say = (html: string, danger = false) => {
+    log.innerHTML = html;
+    log.classList.toggle('danger', danger);
+  };
+  safeBtn.addEventListener('click', () => {
+    fill.classList.remove('over');
+    status.classList.remove('tripped');
+    status.textContent = 'CAGE ARMED';
+    fill.style.width = '0%';
+    label.textContent = '0.0 / 10.0 MiB allocated';
+    say('> allocating 9.4 MiB...<br><span class="dim">> trace emitted. outputs bit-identical. cage held.</span>');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fill.style.width = '94%';
+      label.textContent = '9.4 / 10.0 MiB allocated';
+    }));
+  });
+  killBtn.addEventListener('click', () => {
+    fill.classList.remove('over');
+    status.classList.remove('tripped');
+    status.textContent = 'CAGE ARMED';
+    fill.style.width = '0%';
+    say('> allocating 10,485,761 bytes...<br><span class="dim">> limit is 10,485,760 (MEM_LIMIT).</span>');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fill.style.width = '100%';
+      label.textContent = '10.0 / 10.0 MiB allocated';
+      setTimeout(() => {
+        fill.classList.add('over');
+        status.classList.add('tripped');
+        status.textContent = 'JOB KILLED';
+        say('> FATAL TRAP: guest asked for 1 byte over the limit.<br>> no negotiation. no swap. job terminated.', true);
+      }, 950);
+    }));
+  });
+}
+
+/* --- 06: LEDGER folding --- */
+function initFoldDemo(): void {
+  const stage = document.getElementById('fold-stage');
+  const label = document.getElementById('fold-label');
+  const log = document.getElementById('fold-log');
+  const btn = document.getElementById('fold-btn');
+  const reset = document.getElementById('fold-reset');
+  if (!stage || !label || !log || !btn || !reset) return;
+
+  let level = 0; // 0: 8 tx, 1: 4 proofs, 2: 2 proofs, 3: 1 proof
+  const states = [
+    { n: 8, cls: '', tag: (i: number) => `T${i + 1}`, label: '8 transactions · ledger 8.2 MB', log: '> 8 proofs sitting in RAM. fold them.' },
+    { n: 4, cls: 'proof', tag: (i: number) => `π${i + 1}`, label: '4 proofs · ledger 3.1 MB', log: '> 4 proofs. each one certifies two transactions. fold again.' },
+    { n: 2, cls: 'proof', tag: (i: number) => `π${i + 1}`, label: '2 proofs · ledger 0.9 MB', log: '> 2 proofs. the history is getting thin. once more.' },
+    { n: 1, cls: 'proof', tag: () => 'π 98KB', label: '1 proof · ledger 98 KB', log: '> one constant-size proof. a million transactions would look exactly like this.' },
+  ];
+  const render = () => {
+    stage.innerHTML = '';
+    const s = states[level];
+    for (let i = 0; i < s.n; i++) {
+      const d = document.createElement('div');
+      d.className = `fold-block ${s.cls}`.trim();
+      d.textContent = s.tag(i);
+      stage.appendChild(d);
+    }
+    label.textContent = s.label;
+    log.innerHTML = s.log;
+    (btn as HTMLButtonElement).disabled = level >= 3;
+    btn.querySelector('span')!.textContent = level >= 3 ? 'LEDGER FOLDED' : 'FOLD HISTORY';
+  };
+  btn.addEventListener('click', () => {
+    if (level >= 3) return;
+    const blocks = Array.from(stage.children) as HTMLElement[];
+    blocks.forEach(b => b.classList.add('vanish'));
+    setTimeout(() => { level++; render(); }, 550);
+  });
+  reset.addEventListener('click', () => { level = 0; render(); });
+  render();
+}
+
+/* --- 07: VDF sybil tax --- */
+function initVdfDemo(): void {
+  const fill = document.getElementById('vdf-fill') as HTMLElement | null;
+  const steps = document.getElementById('vdf-steps');
+  const status = document.getElementById('vdf-status');
+  const log = document.getElementById('vdf-log');
+  const btn = document.getElementById('vdf-btn') as HTMLButtonElement | null;
+  if (!fill || !steps || !status || !log || !btn) return;
+
+  const TOTAL = 50_000_000;
+  let running = false;
+  btn.addEventListener('click', () => {
+    if (running) return;
+    running = true;
+    btn.disabled = true;
+    status.textContent = 'BURNING';
+    const t0 = performance.now();
+    const DUR = 8000; // illustrative fast-forward of the ~10 min real burn
+    log.innerHTML = '> grinding sequential squares mod RSA-2048...<br><span class="dim">> no parallelism. no shortcuts. this is the tax.</span>';
+    const tick = (now: number) => {
+      const f = Math.min(1, (now - t0) / DUR);
+      const eased = 1 - Math.pow(1 - f, 2);
+      const done = Math.floor(TOTAL * eased);
+      fill.style.width = `${eased * 100}%`;
+      steps.textContent = `${done.toLocaleString('en-US')} / 50,000,000 steps`;
+      if (f < 1) { requestAnimationFrame(tick); return; }
+      running = false;
+      status.textContent = 'MINTED';
+      log.innerHTML = '> JOB DID minted: sha256 9f3a...c41d.<br>> verified in 3 ms. faking 10,000 identities just got ~70 days more expensive.';
+      btn.disabled = false;
+      btn.querySelector('span')!.textContent = 'BURN AGAIN';
+    };
+    requestAnimationFrame(tick);
+  });
+}

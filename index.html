@@ -75,11 +75,11 @@
           <span class="brand-text">MOSSY<span>MESH</span></span>
         </a>
         <div class="nav-links">
-          <a href="#manifesto" data-text="MANIFESTO">MANIFESTO</a>
-          <a href="#network" data-text="NETWORK">NETWORK</a>
+          <a href="#island" data-text="ISLAND">ISLAND</a>
+          <a href="#stack" data-text="STACK">STACK</a>
           <a href="#chess" data-text="PROOF">PROOF</a>
-          <a href="#terminal" data-text="TERMINAL">TERMINAL</a>
-          <a href="/developers.html" data-text="DOCS">DOCS</a>
+          <a href="#terminal-section" data-text="TERMINAL">TERMINAL</a>
+          <a href="/deep-dive.html" data-text="DEEP DIVE">DEEP DIVE</a>
         </div>
         <a class="nav-cta" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">
           <span class="cta-glitch" data-text="JOIN THE MESH" aria-label="JOIN THE MESH">JOIN THE MESH</span>
@@ -117,7 +117,7 @@
               <span>RUN A NODE</span>
               <span class="btn-arrow" aria-hidden="true">→</span>
             </a>
-            <a class="btn btn-ghost" href="#terminal">
+            <a class="btn btn-ghost" href="#terminal-section">
               <span class="prompt" aria-hidden="true">$</span>
               <span>TRY THE TERMINAL</span>
             </a>
@@ -153,48 +153,237 @@
         </div>
       </div>
 
-      <!-- MANIFESTO -->
-      <section class="manifesto" id="manifesto">
+      <!-- 01: THE ISLAND -->
+      <section class="island" id="island">
         <div class="container">
-          <div class="section-tag reveal">// 01: MANIFESTO</div>
+          <div class="section-tag reveal">// 01: THE ISLAND</div>
+          <h2 class="section-title reveal">Cut the bridge.<br /><span class="accent">Keep the town.</span></h2>
+          <div class="manifesto-grid">
+            <div class="manifesto-text reveal">
+              <p class="big">A storm takes out the only bridge to the mainland. The fiber goes with it.</p>
+              <p>The grocery store's card reader dies. Not because the food is gone, but because the payment has to ask a data center three thousand miles away for permission. Your message to your neighbor fails for the same reason: it was never addressed to your neighbor. It was addressed to a cloud.</p>
+              <p>MossyMesh starts here. Every phone, Pi, and LoRa radio in town already talks to its neighbors over Wi-Fi, Bluetooth, and long-range radio. The mesh turns that chatter into a computer. Jobs split across the devices around you. Results come back with cryptographic proof they were computed correctly. Nobody asks the mainland for anything.</p>
+              <p>When the bridge gets rebuilt, the town's little ledger syncs with the world. Credits earned in the dark settle in the light. Nothing was ever down. It was just local for a while.</p>
+            </div>
+            <div class="manifesto-points">
+              <div class="point reveal"><span class="point-num">A</span><h3>The bridge falls</h3><p>Fiber cut, DNS unreachable, cloud region gone. Every centralized dependency becomes a single point of failure at once.</p></div>
+              <div class="point reveal"><span class="point-num">B</span><h3>The town becomes the network</h3><p>Devices route by cryptographic identity over Wi-Fi, BLE, and LoRa. No registrar, no IP allocation, no permission.</p></div>
+              <div class="point reveal"><span class="point-num">C</span><h3>Work keeps moving</h3><p>Compute jobs fan out across nearby hardware. Every result carries proof it was computed right, verifiable by any node.</p></div>
+              <div class="point reveal"><span class="point-num">D</span><h3>The island rejoins</h3><p>When uplink returns, the local ledger merges with the world. Offline earnings settle. Nothing was lost.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02: FOUR PILLARS -->
+      <section class="manifesto" id="pillars">
+        <div class="container">
+          <div class="section-tag reveal">// 02: FOUR PILLARS</div>
           <h2 class="section-title reveal">The internet broke.<br /><span class="accent">We built around it.</span></h2>
           <div class="manifesto-grid">
             <div class="manifesto-text reveal">
               <p class="big">Every "decentralized" project still phones home. A domain registrar. A cloud bucket. An API key that can be revoked at 3 AM by someone you've never met.</p>
-              <p>MossyMesh starts from a different premise: <strong>assume the infrastructure is hostile or gone.</strong> No central DNS. No cloud database as control plane. No single point that a government, a corporation, or a backhoe can take out.</p>
-              <p>What remains is a mesh of ordinary devices (phones, Pis, PCs, LoRa radios) routing by cryptographic identity, executing deterministic WASM jobs, and converging on shared state through CRDTs. The ledger on any edge node stays under 10&nbsp;MB. Outputs are verifiable or they don't count.</p>
+              <p>MossyMesh starts from a different premise: <strong>assume the infrastructure is hostile or gone.</strong> Four constraints govern every line of code, and none of them bend.</p>
             </div>
             <div class="manifesto-points">
-              <div class="point reveal"><span class="point-num">01</span><h3>Identity-routed</h3><p>Ed25519 keys are addresses. No IP dependence, no DNS lookup, no registrar to seize.</p></div>
-              <div class="point reveal"><span class="point-num">02</span><h3>Deterministic WASM</h3><p>Jobs run in a sandboxed WASM runtime. Same input, same output, on every device, verifiable by anyone.</p></div>
-              <div class="point reveal"><span class="point-num">03</span><h3>Offline-first</h3><p>Designed for dead zones, disaster zones, and censored zones. The mesh is the network.</p></div>
-              <div class="point reveal"><span class="point-num">04</span><h3>Tiny ledger</h3><p>≤10&nbsp;MB active ledger on edge hardware. A Raspberry Pi Zero can be a full citizen.</p></div>
+              <div class="point reveal"><span class="point-num">01</span><h3>Identity-routed</h3><p>Your address is an Ed25519 public key, not an IP. A Kademlia distributed hash table (DHT) finds the key, not the machine. No DNS lookup, no registrar to seize.</p></div>
+              <div class="point reveal"><span class="point-num">02</span><h3>Deterministic compute</h3><p>Jobs run in a sandboxed WASM runtime with static INT8 math. Same bytes in, same bytes out, on a Pi or a PC. Anyone can re-run your job and check.</p></div>
+              <div class="point reveal"><span class="point-num">03</span><h3>Offline-first</h3><p>Designed for dead zones, disaster zones, and censored zones. The mesh is the network. The internet is optional.</p></div>
+              <div class="point reveal"><span class="point-num">04</span><h3>Tiny ledger</h3><p>The active ledger never exceeds 10&nbsp;MB. Old history folds into constant-size proofs and gets dropped. A Raspberry Pi Zero is a full citizen.</p></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- NETWORK / ARCHITECTURE -->
-      <section class="network" id="network">
+      <!-- 03: TWO INTERNETS -->
+      <section class="topology" id="topology">
         <div class="container">
-          <div class="section-tag reveal">// 02: ANATOMY OF THE MESH</div>
-          <h2 class="section-title reveal">Seven crates.<br /><span class="accent">Zero masters.</span></h2>
-          <div class="crates">
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">01</span><h3>mesh-transport</h3></div><p>QUIC + LoRa packet radio. The nervous system: moves bytes across whatever medium exists.</p><div class="crate-lang">RUST</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">02</span><h3>identity</h3></div><p>Ed25519 keys, multisig, DIDs. You are your key. Lose the key, lose the identity. No password reset hotline.</p><div class="crate-lang">RUST</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">03</span><h3>consensus</h3></div><p>Merkle-Patricia trie, iterative traversal, CRDT merge. Shared truth without a referee.</p><div class="crate-lang">RUST</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">04</span><h3>sandbox</h3></div><p>WAMR-based WASM execution. Deterministic jobs: same bytes in, same bytes out, everywhere.</p><div class="crate-lang">RUST · WASM</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">05</span><h3>interop</h3></div><p>Axum gateway, WebSocket sync loop with exponential backoff. The bridge to the old internet.</p><div class="crate-lang">RUST</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">06</span><h3>governance</h3></div><p>On-mesh voting with commit-reveal. Decisions without a boardroom.</p><div class="crate-lang">RUST</div></article>
-            <article class="crate reveal"><div class="crate-head"><span class="crate-num">07</span><h3>frontend</h3></div><p>Chess PoC UI, engine eval, PWA. Proof that cross-device state determinism actually works.</p><div class="crate-lang">TYPESCRIPT</div></article>
+          <div class="section-tag reveal">// 03: TWO INTERNETS</div>
+          <h2 class="section-title reveal">One has a throat.<br /><span class="accent">The other doesn't.</span></h2>
+          <p class="section-sub reveal">Every packet you have ever sent traveled through chokepoints someone could grip: a DNS registrar, a cloud region, an API key. Watch the difference. <span class="sim-note">Illustrative simulation.</span></p>
+          <div class="topo-grid">
+            <div class="topo-panel reveal">
+              <h3>THE OLD WAY</h3>
+              <canvas id="topo-old" aria-label="Animation of a packet traveling through DNS and cloud chokepoints"></canvas>
+              <p class="topo-caption">Device asks DNS. DNS points at cloud. Cloud answers. <strong>Three parties must stay up, honest, and reachable.</strong> Any one of them can say no.</p>
+            </div>
+            <div class="topo-panel reveal">
+              <h3>THE MESH WAY</h3>
+              <canvas id="topo-mesh" aria-label="Animation of a packet hopping between mesh nodes toward a cryptographic identity"></canvas>
+              <p class="topo-caption">The packet knows only a public key. It hops node to node until it arrives. <strong>A node dies mid-flight; the mesh routes around the corpse.</strong></p>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- CHESS PROOF -->
+      <!-- 04: EIGHT CRATES -->
+      <section class="network" id="stack">
+        <div class="container">
+          <div class="section-tag reveal">// 04: ANATOMY OF THE MESH</div>
+          <h2 class="section-title reveal">Eight crates.<br /><span class="accent">Zero masters.</span></h2>
+          <p class="section-sub reveal">The whole system is eight Rust crates plus a TypeScript frontend. Status is honest:
+            <span class="status-tag st-wired">WIRED</span> runs in the repo,
+            <span class="status-tag st-partial">PARTIAL</span> real code with mocks inside,
+            <span class="status-tag st-target">TARGET</span> the number we're aiming at.</p>
+          <div class="crates">
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">01</span><h3>mesh-transport</h3><span class="status-tag st-wired">WIRED</span></div><p>The nervous system. Kademlia DHT routing by Ed25519 key, LoRa with CSMA/CA, BLE, STUN-less UDP hole punching. Identity lives here too: keys, not IPs.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">02</span><h3>consensus</h3><span class="status-tag st-partial">PARTIAL</span></div><p>Shared truth without a referee. Custom Merkle trie over Blake3, YATA-inspired CRDT (conflict-free replicated data type) merges, LRU eviction holding the ledger under 10 MB. Recursive folding is a mock today.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">03</span><h3>engine</h3><span class="status-tag st-wired">WIRED</span></div><p>The chess brain. shakmaty bitboards, deterministic, compiling to wasm32-wasip1. Evaluation target: 836 Mnps class. <span class="status-tag st-target">TARGET</span></p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">04</span><h3>sandbox</h3><span class="status-tag st-partial">PARTIAL</span></div><p>The cage. WASM execution with a hard 10 MiB guest heap: one byte over and the job dies. Static INT8 math keeps every chip in agreement. Native WAMR sits behind a feature flag.</p><div class="crate-lang">RUST · WASM</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">05</span><h3>interop</h3><span class="status-tag st-partial">PARTIAL</span></div><p>The bridge back. Axum gateway, WebSocket sync with exponential backoff, TWAMM with a 2% max-spread cap, HTLC escrows. The VDF-delayed cancel is still a mock.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">06</span><h3>governance</h3><span class="status-tag st-partial">PARTIAL</span></div><p>No permanent bosses. Web-of-trust onboarding, quadratic staking, a 3-of-5 admin multisig whose power decays to zero over 90 days, ZK-blinded commit-reveal votes.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">07</span><h3>ai</h3><span class="status-tag st-wired">WIRED</span></div><p>The heavy tier. SITF tensor containers, vLLM-style paged attention for long contexts, a real CPU backend today and a Vulkan backend for the GPUs.</p><div class="crate-lang">RUST</div></article>
+            <article class="crate reveal"><div class="crate-head"><span class="crate-num">08</span><h3>integration</h3><span class="status-tag st-wired">WIRED</span></div><p>The proof it's one machine. A smoke harness running the real offline pipeline end to end: VDF admission, sandbox invoke, chess eval, ledger insert, Merkle proof verify.</p><div class="crate-lang">RUST</div></article>
+          </div>
+          <p class="section-sub reveal" style="margin-top:32px">Plus the <strong>frontend</strong>: a TypeScript PWA served over a captive portal. This page is part of it.</p>
+        </div>
+      </section>
+
+      <!-- 05: THE SANDBOX -->
+      <section class="sandbox-demo" id="sandbox">
+        <div class="container">
+          <div class="section-tag reveal">// 05: THE SANDBOX</div>
+          <h2 class="section-title reveal">Ten megabytes.<br /><span class="accent">Not eleven.</span></h2>
+          <div class="demo-grid">
+            <div class="demo-text reveal">
+              <p class="big">Every job on the mesh runs in a cage.</p>
+              <p>The cage holds exactly 10 MiB of guest heap. Ask for one byte more and the runtime kills the job on the spot. No negotiation, no swap, no mercy. That harshness is the point: a Pi Zero can host a stranger's compute without fearing a memory bomb.</p>
+              <p>The cage also bans floating-point chaos. Tensor math goes through static INT8 quantization, so a phone and a laptop produce bit-identical outputs. If two devices disagree on a result, the merge is wrong, and the network knows it.</p>
+              <p class="honest-note">Honest note: the cage is a pure-Rust host simulation today; native WAMR links behind a feature flag. The 10 MiB limit is enforced either way.</p>
+            </div>
+            <div class="demo-panel reveal">
+              <h3>GUEST HEAP: TRY TO BREAK IT</h3>
+              <div class="mem-bar" role="img" aria-label="Memory allocation bar showing the 10 MiB hard limit">
+                <div class="mem-limit-line" aria-hidden="true"><span>10 MiB HARD LIMIT</span></div>
+                <div class="mem-fill" id="mem-fill"></div>
+              </div>
+              <div class="mem-readout"><span id="mem-label">0.0 / 10.0 MiB allocated</span><span class="mem-status" id="mem-status">CAGE ARMED</span></div>
+              <div class="demo-btns">
+                <button class="btn btn-ghost" id="mem-safe"><span>RUN JOB: 9.4 MiB</span></button>
+                <button class="btn btn-ghost" id="mem-kill"><span>RUN JOB: 10 MiB + 1 byte</span></button>
+              </div>
+              <p class="demo-log" id="mem-log" aria-live="polite">> cage armed. allocate memory to test the limit.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 06: THE LEDGER -->
+      <section class="ledger-demo" id="ledger">
+        <div class="container">
+          <div class="section-tag reveal">// 06: THE LEDGER</div>
+          <h2 class="section-title reveal">A million transactions.<br /><span class="accent">One hundred kilobytes.</span></h2>
+          <div class="demo-grid">
+            <div class="demo-text reveal">
+              <p class="big">Blockchains ask every phone to carry the entire history of everything. MossyMesh refuses.</p>
+              <p>The active ledger stays under 10 MB, and old history doesn't get stored, it gets folded. Each new proof certifies that the latest transaction correctly followed the proof of everything before it. After a million transactions the device holds one small proof, not a 50 GB archive. What no longer fits gets evicted, least-recently-used first.</p>
+              <p class="honest-note">Honest note: the folding prover is a mock in the repo today and the nova-snark backend stays unwired until the circuit earns its place. The eviction and the sub-megabyte payloads are real.</p>
+            </div>
+            <div class="demo-panel reveal">
+              <h3>RECURSIVE FOLDING: PRESS TO FOLD</h3>
+              <div class="fold-stage" id="fold-stage" role="img" aria-label="Diagram of transaction proofs folding into a single constant-size proof"></div>
+              <div class="mem-readout"><span id="fold-label">8 transactions · ledger 8.2 MB</span></div>
+              <div class="demo-btns">
+                <button class="btn btn-ghost" id="fold-btn"><span>FOLD HISTORY</span></button>
+                <button class="btn btn-ghost" id="fold-reset"><span>RESET</span></button>
+              </div>
+              <p class="demo-log" id="fold-log" aria-live="polite">> 8 proofs sitting in RAM. fold them.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 07: THE SYBIL TAX -->
+      <section class="vdf-demo" id="sybiltax">
+        <div class="container">
+          <div class="section-tag reveal">// 07: THE SYBIL TAX</div>
+          <h2 class="section-title reveal">Spam costs<br /><span class="accent">ten minutes.</span></h2>
+          <div class="demo-grid">
+            <div class="demo-text reveal">
+              <p class="big">With no IPs and no captchas, what stops someone from minting a million fake identities and drowning the local radio in garbage?</p>
+              <p>Time. To submit a job, your device must grind through 50,000,000 sequential steps of a Wesolowski verifiable delay function (VDF) over RSA-2048. Sequential is the whole trick: you cannot parallelize it, you cannot buy your way out with more cores. On ordinary hardware the burn takes about ten minutes. Verification takes milliseconds.</p>
+              <p>One job, ten minutes: annoying but fine. Ten thousand fake jobs: seventy days of continuous grinding. The spam math stops working.</p>
+              <p class="honest-note">The first design used MinRoot. Issue #199 killed it: verifying MinRoot meant re-running all fifty million steps, turning every verification into a CPU-denial-of-service amplifier. Wesolowski verifies fast. The scar tissue lives in docs/math-wesolowski-vdf.md. Whether ten minutes survives a determined ASIC farm is still an open question; the risk register calls it medium probability, and nobody has published a number.</p>
+            </div>
+            <div class="demo-panel reveal">
+              <h3>MINT AN EPHEMERAL JOB ID</h3>
+              <div class="vdf-bar" role="img" aria-label="VDF computation progress bar">
+                <div class="vdf-fill" id="vdf-fill"></div>
+              </div>
+              <div class="mem-readout"><span id="vdf-steps">0 / 50,000,000 steps</span><span class="mem-status" id="vdf-status">IDLE</span></div>
+              <div class="demo-btns">
+                <button class="btn btn-ghost" id="vdf-btn"><span>START THE BURN</span></button>
+              </div>
+              <p class="demo-log" id="vdf-log" aria-live="polite">> illustrative fast-forward. the real burn is ~10 minutes of sequential grind.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 08: THE BRIDGE -->
+      <section class="bridge" id="bridge">
+        <div class="container">
+          <div class="section-tag reveal">// 08: THE BRIDGE</div>
+          <h2 class="section-title reveal">Islands<br /><span class="accent">rejoin the world.</span></h2>
+          <div class="manifesto-grid">
+            <div class="manifesto-text reveal">
+              <p class="big">The mesh can live in the dark forever. But sometimes the fiber comes back.</p>
+              <p>Then the interop crate opens the bridge: an Axum HTTP gateway and a WebSocket sync loop with exponential backoff. Credits earned offline settle against global liquidity through a TWAMM with a hard 2% max-spread cap, so rejoining the world doesn't mean getting skinned on the spread.</p>
+              <p>Payments between strangers ride on hash time-locked contracts: escrows that need no trust and no judge. The VDF-delayed cancellation that would make them airtight is still a mock. That's the next weld.</p>
+            </div>
+            <div class="manifesto-points">
+              <div class="point reveal"><span class="point-num">01</span><h3>Axum gateway</h3><p>HTTP and WebSocket surface for jobs, sync, and liquidity when uplink exists. Same contracts the offline island already speaks.</p></div>
+              <div class="point reveal"><span class="point-num">02</span><h3>Exponential backoff sync</h3><p>The reconnect loop backs off instead of hammering a flaky link. Islands merge when the link holds, not before.</p></div>
+              <div class="point reveal"><span class="point-num">03</span><h3>TWAMM, 2% max spread</h3><p>A time-weighted automated market maker (TWAMM) for offline-earned credits, with the spread cap enforced in code. No silent skimming.</p></div>
+              <div class="point reveal"><span class="point-num">04</span><h3>HTLC escrows</h3><p>Hash time-locked contracts hold job payments between strangers. Neither side can defect mid-partition. <span class="status-tag st-partial">VDF CANCEL: MOCK</span></p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 09: GENESIS KIT -->
+      <section class="kit" id="kit">
+        <div class="container">
+          <div class="section-tag reveal">// 09: GENESIS KIT</div>
+          <h2 class="section-title reveal">A supercomputer<br /><span class="accent">for $970.</span></h2>
+          <p class="section-sub reveal">No data center. No rack. The minimum viable offline supercomputer fits in a backpack and costs less than a flagship phone. From the repo's own procurement table, USD.</p>
+          <div class="kit-table-wrap reveal">
+            <table class="kit-table">
+              <thead><tr><th>Qty</th><th>Tier</th><th>Hardware</th><th>Cost</th></tr></thead>
+              <tbody>
+                <tr><td>2</td><td><strong>Pi-Tier</strong> (genesis nodes)</td><td>Raspberry Pi Zero 2 W, 4, or 5</td><td>~$150</td></tr>
+                <tr><td>3</td><td><strong>Edge / IoT tier</strong></td><td>ESP32 microcontrollers with SX1262 LoRa transceivers</td><td>~$60</td></tr>
+                <tr><td>1</td><td><strong>Regional hub</strong></td><td>NVMe-equipped high-capacity mini PC</td><td>~$250</td></tr>
+                <tr><td>-</td><td><strong>Physical layer gear</strong></td><td>Power banks, HF ham radio links, high-gain antennas</td><td>~$150</td></tr>
+                <tr><td>12 mo</td><td><strong>SaaS &amp; tooling</strong></td><td>Pro-tier AI assistants, developer workspace</td><td>~$360/yr</td></tr>
+              </tbody>
+              <tfoot><tr><td colspan="3"><strong>Total initial outlay</strong></td><td><strong>~$970</strong></td></tr></tfoot>
+            </table>
+          </div>
+          <p class="section-sub reveal">The Pis are the citizens. The mini PC is the librarian. The radios are the roads.</p>
+        </div>
+      </section>
+
+      <!-- 10: THE CONTRACT -->
+      <section class="contract" id="contract">
+        <div class="container">
+          <div class="section-tag reveal">// 10: THE CONTRACT</div>
+          <h2 class="section-title reveal">Done means<br /><span class="accent">measured.</span></h2>
+          <p class="section-sub reveal">Every change to the repo is judged against five numbers from docs/sla-and-dod.md. Miss one and it doesn't ship.</p>
+          <div class="contract-list">
+            <div class="contract-row reveal"><span class="contract-id">SLA-RAM</span><div><h3>≤ 10 MB active ledger on edge</h3><p>The whole shared state must fit in a rounding error of RAM.</p></div><span class="status-tag st-wired">WIRED</span></div>
+            <div class="contract-row reveal"><span class="contract-id">SLA-DET</span><div><h3>&lt; 1% unverifiable outputs</h3><p>A result nobody can verify is a result that never happened.</p></div><span class="status-tag st-wired">WIRED</span></div>
+            <div class="contract-row reveal"><span class="contract-id">SLA-TO</span><div><h3>&lt; 5% job timeout on hostile RF</h3><p>Flaky LoRa links, interference, dead air. The mesh still delivers.</p></div><span class="status-tag st-target">TARGET</span></div>
+            <div class="contract-row reveal"><span class="contract-id">SLA-CAP</span><div><h3>100 RVCH/day, 20-node island, zero upstream</h3><p>RVCH: Resilient Verifiable Compute-Hours. The island doesn't count jobs. It counts proven work.</p></div><span class="status-tag st-target">TARGET</span></div>
+            <div class="contract-row reveal"><span class="contract-id">SLA-DEC</span><div><h3>No central DNS, IP, or cloud DB as control plane</h3><p>If any single company can turn it off, it isn't MossyMesh.</p></div><span class="status-tag st-wired">WIRED</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11: CHESS PROOF -->
       <section class="chess" id="chess">
         <div class="container">
-          <div class="section-tag reveal">// 03: PROOF, NOT PROMISES</div>
+          <div class="section-tag reveal">// 11: PROOF, NOT PROMISES</div>
           <h2 class="section-title reveal">Chess across the mesh.<br /><span class="accent">Same board, every device.</span></h2>
           <div class="chess-grid">
             <div class="chess-board-wrap reveal">
@@ -215,10 +404,10 @@
         </div>
       </section>
 
-      <!-- TERMINAL -->
+      <!-- 12: TERMINAL -->
       <section class="terminal-section" id="terminal-section">
         <div class="container">
-          <div class="section-tag reveal">// 04: TALK TO THE MESH</div>
+          <div class="section-tag reveal">// 12: TALK TO THE MESH</div>
           <h2 class="section-title reveal">A terminal.<br /><span class="accent">Because GUIs are for tourists.</span></h2>
           <p class="section-sub reveal">Type <code>help</code> and poke around. There are easter eggs in here.</p>
           <div class="terminal reveal" id="terminal" role="region" aria-label="Interactive mesh terminal">
@@ -235,17 +424,17 @@
         </div>
       </section>
 
-      <!-- DOCS / API -->
+      <!-- 13: DOCS / API -->
       <section class="docs-cta" id="docs">
         <div class="container">
-          <div class="section-tag reveal">// 05: BUILD ON IT</div>
+          <div class="section-tag reveal">// 13: BUILD ON IT</div>
           <h2 class="section-title reveal">Machine-readable<br /><span class="accent">from day one.</span></h2>
           <p class="section-sub reveal">Every fact on this page also lives as JSON. OpenAPI 3.1 spec, CORS-ready endpoints, no SPA-only content traps.</p>
           <div class="docs-grid">
+            <a class="doc-card reveal" href="/deep-dive.html"><h3>DEEP DIVE</h3><p>The full field guide: island to ledger, with the honest status of every part.</p><span class="doc-arrow" aria-hidden="true">→</span></a>
             <a class="doc-card reveal" href="/api.html"><h3>API INDEX</h3><p>All public endpoints, live JSON.</p><span class="doc-arrow" aria-hidden="true">→</span></a>
             <a class="doc-card reveal" href="/developers.html"><h3>DEVELOPERS</h3><p>Human docs, quickstarts, contracts.</p><span class="doc-arrow" aria-hidden="true">→</span></a>
-            <a class="doc-card reveal" href="/openapi.yaml"><h3>OPENAPI 3.1</h3><p>The full gateway surface, spec'd.</p><span class="doc-arrow" aria-hidden="true">→</span></a>
-            <a class="doc-card reveal" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener"><h3>SOURCE</h3><p>Seven crates. Read every line.</p><span class="doc-arrow" aria-hidden="true">→</span></a>
+            <a class="doc-card reveal" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener"><h3>SOURCE</h3><p>Eight crates. Read every line.</p><span class="doc-arrow" aria-hidden="true">→</span></a>
           </div>
         </div>
       </section>
@@ -271,6 +460,7 @@
           <p>Decentralized offline compute mesh.<br />Built in the open. Owned by no one.</p>
         </div>
         <nav class="footer-nav" aria-label="Footer">
+          <a href="/deep-dive.html">Deep Dive</a>
           <a href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">GitHub</a>
           <a href="/developers.html">Developers</a>
           <a href="/api.html">API</a>
