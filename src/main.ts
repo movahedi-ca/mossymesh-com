@@ -19,12 +19,9 @@ const BOOT_LINES = [
   ' | |  | | (_) \\__ \\__ \\ |_| | |  | |  __\\__ \\ | | |',
   ' |_|  |_|\\___/|___/___/\\__, |_|  |_|\\___|___/_| |_|',
   '                        |___/                     ',
-  'checking hardware entropy ............ OK',
-  'seeding node identity ................ OK',
-  'scanning radio spectrum .............. 4 BANDS FOUND',
-  'pinging neighbors .................... 1,247 RESPONDED',
-  'verifying ledger integrity ........... 8.2 MB OK',
-  'establishing mesh routes ............. DONE',
+  'checking page assets .................. OK',
+  'loading demo modules ................. OK',
+  'rendering mesh visualization ......... DONE',
   '',
   '> WELCOME TO THE NETWORK THAT REFUSES TO DIE',
 ];
@@ -468,24 +465,21 @@ const COMMANDS: Record<string, (args: string[]) => void> = {
     termPrint('  clear ........ wipe the terminal', 'term-dim');
   },
   status: () => {
-    termPrint('MESH STATUS: OPERATIONAL', 'term-green');
-    termPrint('  uptime ......... 99.98% (this node)', 'term-dim');
-    termPrint('  latency ........ 12ms median', 'term-dim');
-    termPrint('  ledger ......... 8.2 MB / 10 MB cap', 'term-dim');
-    termPrint('  consensus ...... 2,847 rounds, 0 forks', 'term-dim');
-    termPrint('  threat level ... CORPORATIONS ANGRY', 'term-amber');
+    termPrint('MESH STATUS: [SIMULATED DEMO OUTPUT]', 'term-amber');
+    termPrint('  This terminal is a fiction. No real mesh exists yet.', 'term-dim');
+    termPrint('  What we are actually building toward:', 'term-dim');
+    termPrint('    ledger cap ... under 10 MB on device', 'term-dim');
+    termPrint('    sync ......... CRDT merge, no central server', 'term-dim');
+    termPrint('    transport .... Bluetooth LE / Wi-Fi Direct', 'term-dim');
   },
   peers: () => {
-    const peers = ['phone-7f3a (android, 4km)', 'pi-zero-2w (lorawan, 12km)', 'thinkpad-x230 (wifi, 0.3km)', 'esp32-relay-9 (ble, 800m)', 'old-dell-closet (ethernet, local)'];
-    termPrint('NEIGHBOR NODES:', 'term-green');
-    peers.forEach(p => termPrint('  [+] ' + p, 'term-dim'));
+    termPrint('[SIMULATED] No real peers. This is a demo terminal.', 'term-amber');
+    termPrint('  When the mesh ships, nearby nodes will appear here.', 'term-dim');
   },
   ledger: () => {
-    termPrint('EDGE LEDGER (last 4 entries):', 'term-green');
-    termPrint('  #2847 chess.e2e4 ......... VERIFIED', 'term-dim');
-    termPrint('  #2846 job.render.44 ...... VERIFIED', 'term-dim');
-    termPrint('  #2845 route.update ....... VERIFIED', 'term-dim');
-    termPrint('  #2844 sensor.temp ........ VERIFIED', 'term-dim');
+    termPrint('[SIMULATED] Ledger entries below are illustrative.', 'term-amber');
+    termPrint('  #0001 mesh.genesis ...... PLACEHOLDER', 'term-dim');
+    termPrint('  (real entries appear once nodes start syncing)', 'term-dim');
   },
   join: () => {
     termPrint('> generating node identity...', 'term-dim');

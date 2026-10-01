@@ -531,11 +531,14 @@ img { max-width: 100%; }
 
 .glitch { position: relative; }
 
+/* Glitch layers are purely decorative; text content stays single in the accessibility tree */
 .glitch::before, .glitch::after {
   content: attr(data-text);
   position: absolute;
   inset: 0;
   opacity: 0;
+  pointer-events: none;
+  speak: never;
 }
 
 .glitch:hover::before, .glitch.auto::before {
