@@ -38,6 +38,8 @@ const CHECKS = [
   { id: "page-home", path: "index.html", severity: "required" },
   { id: "page-api", path: "api.html", severity: "required" },
   { id: "page-developers", path: "developers.html", severity: "required" },
+  { id: "page-blog-index", path: "blog/index.html", severity: "required" },
+  { id: "page-blog-post", path: "blog/why-determinism-matters.html", severity: "required" },
   { id: "src-main", path: "src/main.ts", severity: "required" },
   { id: "src-api-page", path: "src/api-page.ts", severity: "required" },
   { id: "src-styles", path: "src/styles.css", severity: "required" },
@@ -160,7 +162,7 @@ function integrityChecks() {
   }
 
   // Build output exists and has the three pages
-  for (const page of ["index.html", "api.html", "developers.html"]) {
+  for (const page of ["index.html", "api.html", "developers.html", "blog/index.html", "blog/why-determinism-matters.html"]) {
     const p = join(ROOT, "dist", page);
     const ok = existsSync(p) && statSync(p).isFile();
     results.push({

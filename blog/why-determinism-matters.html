@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Deterministic WASM jobs are the MossyMesh foundation: replicas must converge on identical state, and the chess PoC proves cross-device determinism." />
+  <meta name="theme-color" content="#050807" />
+  <meta property="og:title" content="Why the Mesh Only Runs Jobs It Can Replay | MossyMesh Dev Log" />
+  <meta property="og:description" content="Determinism is the load-bearing assumption behind every MossyMesh SLA. Same bytes in, same bytes out, on a Pi or a laptop." />
+  <meta property="og:url" content="https://mossymesh.com/blog/why-determinism-matters.html" />
+  <meta property="og:type" content="article" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://mossymesh.com/blog/why-determinism-matters.html" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Why the Mesh Only Runs Jobs It Can Replay",
+    "description": "Deterministic WASM jobs are the MossyMesh foundation: replicas must converge on identical state, and the chess PoC proves cross-device determinism.",
+    "datePublished": "2026-10-03",
+    "author": { "@type": "Organization", "name": "MossyMesh" },
+    "publisher": { "@type": "Organization", "name": "MossyMesh" },
+    "mainEntityOfPage": "https://mossymesh.com/blog/why-determinism-matters.html"
+  }
+  </script>
+  <title>Why the Mesh Only Runs Jobs It Can Replay | MossyMesh Dev Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <a class="skip-link" href="#article">Skip to article</a>
+
+  <div class="site-wrap">
+    <header class="site-header" id="site-header">
+      <nav class="container nav" aria-label="Primary">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="brand-text">MOSSY<span>MESH</span></span>
+        </a>
+        <div class="nav-links">
+          <a href="/" data-text="HOME">HOME</a>
+          <a href="/deep-dive.html" data-text="DEEP DIVE">DEEP DIVE</a>
+          <a href="/developers.html" data-text="DEVELOPERS">DEVELOPERS</a>
+          <a href="/api.html" data-text="API">API</a>
+          <a href="/blog/" data-text="BLOG" aria-current="page">BLOG</a>
+        </div>
+        <a class="nav-cta" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">
+          <span class="cta-glitch" data-text="JOIN THE MESH" aria-label="JOIN THE MESH">JOIN THE MESH</span>
+        </a>
+      </nav>
+    </header>
+
+    <main id="article">
+      <article class="deepdive">
+        <div class="container">
+          <div class="deepdive-inner">
+            <a class="back-link reveal" href="/blog/">← ALL POSTS</a>
+            <div class="kicker reveal">MOSSYMESH DEV LOG</div>
+            <div class="post-meta reveal"><time datetime="2026-10-03">OCTOBER 3, 2026</time><span aria-hidden="true">·</span><span>DETERMINISM</span></div>
+            <h1 class="reveal">Why the mesh only runs jobs it can replay</h1>
+            <p class="standfirst reveal">Determinism is the load-bearing assumption behind every SLA on this site. A Pi and a laptop must return bit-identical results from the same bytes. When they do not, the network has a problem no clever protocol can fix.</p>
+
+            <p class="lede reveal">Picture this: two phones in airplane mode take the same job, grind through it, and return different answers. Now someone has to pick a winner. The moment a network starts picking winners by authority, the verifiable part of verifiable compute is gone.</p>
+            <p class="reveal">The rule is simple to state and brutal to honor: same bytes in, same bytes out, on any hardware. This is SLA-DET, from docs/sla-and-dod.md in the repo: fewer than 1% of outputs may be unverifiable. The ledger only settles results it can replay and recheck. A result nobody can verify never happened.</p>
+
+            <h2 class="reveal">Rewind: the <span class="accent">chessboard</span></h2>
+            <p class="reveal">MossyMesh picked the honest starting point for this problem: a chessboard. Chess is a perfect-information game with discrete state, which makes it the worst possible place to hide non-determinism. MessyMash is the determinism benchmark. Every move is a CRDT (conflict-free replicated data type) operation, every position is a trie root, and the shakmaty engine evaluates identically whether it runs on-device or inside the WASM sandbox.</p>
+            <p class="reveal">The speed number attached to that engine is a stated target: an 836-million-nodes-per-second class engine, explicitly a target, not a measurement. If two devices can agree on a chess position, the merge machinery works, and everything more complicated rides on the same rails.</p>
+
+            <h2 class="reveal">Floating point is the usual <span class="accent">suspect</span></h2>
+            <p class="reveal">The usual way identical code produces different answers on different chips is floating-point math. A phone and a laptop can disagree in the last bit of a float, and then the trie roots diverge and the replicas fork. MossyMesh answers with static INT8 quantization on the tensor payloads: integers do not disagree. (The quantization scale itself is still a float. INT8 covers the payloads, and the determinism SLA is measured on outputs, not on the absence of floats.)</p>
+            <p class="reveal">The sandbox removes the other escape hatches. Every job runs in a cage with a hard 10 MiB guest heap. Ask for one byte more and the runtime kills the job. No swap, no negotiation. A Pi Zero can host a stranger's compute without fearing a memory bomb, and a job cannot smuggle state in through the heap because there is no room to hide it.</p>
+
+            <h2 class="reveal">The second <span class="accent">wall</span></h2>
+            <p class="reveal">There is a second wall worth naming. The ten-minute Wesolowski VDF grind keeps fake identities too expensive to mint, and determinism keeps the math honest once a job is inside. Two different threats. Two different walls. Both load-bearing.</p>
+
+            <h2 class="reveal">The honest <span class="accent">status</span></h2>
+            <p class="reveal">Not everything here is wired. The native WAMR runtime sits behind a feature flag, and the tests run on a pure-Rust host today. SLA-TO, fewer than 5% job timeouts on unstable RF, is a target; the first real storm of packet loss will grade that one. The determinism guarantee is the part already doing work: the sandbox enforces it, the ledger checks it, the chessboard proved it.</p>
+            <p class="reveal">Nobody has measured what the first non-deterministic failure looks like on real radios yet. When it happens, the question that matters is whether the network flags the job itself, before anyone has to trust the node that ran it.</p>
+
+            <div class="reveal" style="margin-top:64px">
+              <a class="btn btn-primary" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener"><span>READ THE CODE</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-text">MOSSY<span>MESH</span></span>
+          <p>Decentralized offline compute mesh.<br />Built in the open. Owned by no one.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="/">Home</a>
+          <a href="/blog/">Blog</a>
+          <a href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">GitHub</a>
+          <a href="/developers.html">Developers</a>
+          <a href="/api.html">API</a>
+          <a href="/openapi.yaml">OpenAPI</a>
+        </nav>
+        <div class="footer-meta">
+          <span>© 2026 MossyMesh</span>
+          <span class="footer-status"><span class="pulse-dot" aria-hidden="true"></span> SITE ONLINE</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module">
+    // Minimal reveal-on-scroll for the article page (no terminal/globe here).
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    els.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>

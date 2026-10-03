@@ -1611,3 +1611,16 @@ section { padding: 120px 0; position: relative; }
   .demo-btns .btn { width: 100%; justify-content: center; }
   .kit-table th, .kit-table td { padding: 12px 14px; font-size: 13px; }
 }
+
+/* Blog */
+.post-meta { display: flex; gap: 16px; align-items: center; font-size: 12px; letter-spacing: 3px; color: var(--dim); margin-bottom: 24px; }
+.post-card { display: block; border: 1px solid var(--line); padding: 32px; margin-top: 16px; text-decoration: none; }
+.post-card:hover { border-color: var(--green); }
+.post-card .post-meta { margin-bottom: 16px; }
+.post-card h2 { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(24px, 4vw, 36px); line-height: 1.1; margin: 0 0 16px; color: var(--text); }
+.post-card .post-excerpt { color: var(--dim); line-height: 1.7; font-size: 16px; margin: 0 0 24px; }
+.post-card .read-more { font-size: 13px; letter-spacing: 2px; color: var(--green); }
+@media (max-width: 390px) {
+  .post-card { padding: 24px 20px; }
+  .post-meta { letter-spacing: 2px; }
+}

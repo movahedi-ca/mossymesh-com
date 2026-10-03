@@ -17,6 +17,8 @@ export default defineConfig({
         developers: resolve(rootDir, "developers.html"),
         api: resolve(rootDir, "api.html"),
         deepdive: resolve(rootDir, "deep-dive.html"),
+        "blog/index": resolve(rootDir, "blog/index.html"),
+        "blog/why-determinism-matters": resolve(rootDir, "blog/why-determinism-matters.html"),
       },
       external: ['three'],
     },

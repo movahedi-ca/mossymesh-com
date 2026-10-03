@@ -61,5 +61,7 @@ Machine-readable project: https://mossymesh.com/api/v1/project.json
 
 - /: marketing
 - /deep-dive.html: the full field guide (island story, eight crates, sandbox, ledger, Sybil tax, honest build status)
+- /blog/: the MossyMesh dev log (engineering notes from the mesh build)
+- /blog/why-determinism-matters.html: why deterministic WASM jobs are the foundation (SLA-DET <1% unverifiable outputs, MessyMash determinism proof, 836 Mnps engine target)
 - /developers.html: contribute & stack
 - /api.html: API overview

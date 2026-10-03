@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="The MossyMesh dev log: engineering notes from the mesh build. Design decisions, honest build status, and the questions not yet answered." />
+  <meta name="theme-color" content="#050807" />
+  <meta property="og:title" content="The Dev Log | MossyMesh" />
+  <meta property="og:description" content="Engineering notes from the mesh build: design decisions, honest build status, and the questions not yet answered." />
+  <meta property="og:url" content="https://mossymesh.com/blog/" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://mossymesh.com/blog/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "The MossyMesh Dev Log",
+    "description": "Engineering notes from the mesh build: design decisions, honest build status, and the questions not yet answered.",
+    "url": "https://mossymesh.com/blog/"
+  }
+  </script>
+  <title>The Dev Log | MossyMesh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <a class="skip-link" href="#article">Skip to posts</a>
+
+  <div class="site-wrap">
+    <header class="site-header" id="site-header">
+      <nav class="container nav" aria-label="Primary">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="brand-text">MOSSY<span>MESH</span></span>
+        </a>
+        <div class="nav-links">
+          <a href="/" data-text="HOME">HOME</a>
+          <a href="/deep-dive.html" data-text="DEEP DIVE">DEEP DIVE</a>
+          <a href="/developers.html" data-text="DEVELOPERS">DEVELOPERS</a>
+          <a href="/api.html" data-text="API">API</a>
+          <a href="/blog/" data-text="BLOG" aria-current="page">BLOG</a>
+        </div>
+        <a class="nav-cta" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">
+          <span class="cta-glitch" data-text="JOIN THE MESH" aria-label="JOIN THE MESH">JOIN THE MESH</span>
+        </a>
+      </nav>
+    </header>
+
+    <main id="article">
+      <article class="deepdive">
+        <div class="container">
+          <div class="deepdive-inner">
+            <a class="back-link reveal" href="/">← BACK TO THE SURFACE</a>
+            <div class="kicker reveal">MOSSYMESH DEV LOG</div>
+            <h1 class="reveal">Notes from the build</h1>
+            <p class="standfirst reveal">Engineering notes from the mesh build: design decisions, honest build status, and the questions we have not answered yet. One post so far. More when the code earns them.</p>
+
+            <a class="post-card reveal" href="/blog/why-determinism-matters.html">
+              <div class="post-meta"><time datetime="2026-10-03">OCTOBER 3, 2026</time><span aria-hidden="true">·</span><span>DETERMINISM</span></div>
+              <h2>Why the mesh only runs jobs it can replay</h2>
+              <p class="post-excerpt">Determinism is the load-bearing assumption behind every SLA on this site. A Pi and a laptop must return bit-identical results from the same bytes, or the whole idea of verifiable compute falls apart.</p>
+              <span class="read-more">READ THE POST <span aria-hidden="true">→</span></span>
+            </a>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-text">MOSSY<span>MESH</span></span>
+          <p>Decentralized offline compute mesh.<br />Built in the open. Owned by no one.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="/">Home</a>
+          <a href="/blog/">Blog</a>
+          <a href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">GitHub</a>
+          <a href="/developers.html">Developers</a>
+          <a href="/api.html">API</a>
+          <a href="/openapi.yaml">OpenAPI</a>
+        </nav>
+        <div class="footer-meta">
+          <span>© 2026 MossyMesh</span>
+          <span class="footer-status"><span class="pulse-dot" aria-hidden="true"></span> SITE ONLINE</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module">
+    // Minimal reveal-on-scroll for the blog index (no terminal/globe here).
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    els.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>

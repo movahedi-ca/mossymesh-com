@@ -46,6 +46,8 @@ function htmlPages(dir) {
 function expectedPath(rp) {
   let p = rp.replace(/^dist/, "");
   if (p === "/index.html") return "/";
+  // directory index: /blog/index.html -> /blog/ (clean URL)
+  if (p.endsWith("/index.html")) return p.slice(0, -"index.html".length);
   return p; // flat .html convention: /developers.html stays /developers.html
 }
 

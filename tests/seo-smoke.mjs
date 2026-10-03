@@ -138,7 +138,10 @@ function hasJsonLd(html) {
 /** @param {string} rel */
 function expectedCanonicalFor(rel) {
   // mossymesh.com convention: flat .html files, /index.html -> trailing slash
-  return rel === "index.html" ? `${SITE}/` : `${SITE}/${rel}`;
+  // directory index: blog/index.html -> /blog/ (clean URL)
+  if (rel === "index.html") return `${SITE}/`;
+  if (rel.endsWith("/index.html")) return `${SITE}/${rel.slice(0, -"index.html".length)}`;
+  return `${SITE}/${rel}`;
 }
 
 /**
