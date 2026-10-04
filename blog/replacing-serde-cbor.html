@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="serde_cbor went unmaintained in 2021, yet it fed every trie hash MossyMesh trusts. How the ciborium migration worked, and the checklist it produced." />
+  <meta name="theme-color" content="#050807" />
+  <meta property="og:title" content="Replacing the crate nobody maintains | MossyMesh Dev Log" />
+  <meta property="og:description" content="serde_cbor went unmaintained in 2021, yet it fed every trie hash MossyMesh trusts. How the ciborium migration worked, and the checklist it produced." />
+  <meta property="og:url" content="https://mossymesh.com/blog/replacing-serde-cbor.html" />
+  <meta property="og:type" content="article" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://mossymesh.com/blog/replacing-serde-cbor.html" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Replacing the crate nobody maintains",
+    "description": "serde_cbor went unmaintained in 2021, yet it fed every trie hash MossyMesh trusts. How the ciborium migration worked, and the checklist it produced.",
+    "datePublished": "2026-10-04",
+    "author": { "@type": "Organization", "name": "MossyMesh" },
+    "publisher": { "@type": "Organization", "name": "MossyMesh" },
+    "mainEntityOfPage": "https://mossymesh.com/blog/replacing-serde-cbor.html"
+  }
+  </script>
+  <title>Replacing the crate nobody maintains | MossyMesh Dev Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <a class="skip-link" href="#article">Skip to article</a>
+
+  <div class="site-wrap">
+    <header class="site-header" id="site-header">
+      <nav class="container nav" aria-label="Primary">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="brand-text">MOSSY<span>MESH</span></span>
+        </a>
+        <div class="nav-links">
+          <a href="/" data-text="HOME">HOME</a>
+          <a href="/deep-dive.html" data-text="DEEP DIVE">DEEP DIVE</a>
+          <a href="/developers.html" data-text="DEVELOPERS">DEVELOPERS</a>
+          <a href="/api.html" data-text="API">API</a>
+          <a href="/blog/" data-text="BLOG" aria-current="page">BLOG</a>
+        </div>
+        <a class="nav-cta" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">
+          <span class="cta-glitch" data-text="JOIN THE MESH" aria-label="JOIN THE MESH">JOIN THE MESH</span>
+        </a>
+      </nav>
+    </header>
+
+    <main id="article">
+      <article class="deepdive">
+        <div class="container">
+          <div class="deepdive-inner">
+            <a class="back-link reveal" href="/blog/">← ALL POSTS</a>
+            <div class="kicker reveal">MOSSYMESH DEV LOG</div>
+            <div class="post-meta reveal"><time datetime="2026-10-04">OCTOBER 4, 2026</time><span aria-hidden="true">·</span><span>DEPENDENCIES</span></div>
+            <h1 class="reveal">Replacing the crate nobody maintains</h1>
+            <p class="standfirst reveal">An unmaintained serialization crate sat one step upstream of every hash the network trusts. Replacing it took ten lines of code and one hard look at the bytes.</p>
+
+<p class="lede reveal">The smallest diff I shipped this week was three lines in a TOML file. I deleted an entry from the ignore list in <code>deny.toml</code>, and I have been thinking about it more than the other 285 commits that landed on main recently.</p>
+<p class="reveal">The entry was RUSTSEC-2021-0127. It said: <code>serde_cbor 0.11</code> is unmaintained. We knew. We had written the ignore ourselves, with a comment pointing at issue #267, which said, in so many words, "swapping it touches the wire format, so this needs care." Care is what the ignore list was for: a conscious decision, documented, instead of a silent pass. The gate stayed green for new advisories while the old ones waited their turn.</p>
+<p class="reveal">This week was #267's turn.</p>
+<h2 class="reveal">What the crate was <span class="accent">doing</span></h2>
+<p class="reveal">MossyMesh's consensus crate encodes trie node payloads, leaf paths, extension pointers, branch children, as CBOR. CBOR is the binary cousin of JSON: compact, self-describing, good on a wire. The encoded bytes get a domain tag prepended and hashed with Blake3, and those hashes become the roots that the whole ledger agrees on. So the serialization crate sits exactly one step upstream of every hash the network trusts.</p>
+<p class="reveal">serde_cbor did that job. It also has not had a release since 2021. The author posted in 2020 asking for maintainers. People volunteered. The crate went quiet anyway. The code still compiles, the bytes still decode, and that is precisely the trap: an unmaintained crate fails silently, by never failing at all, until the day it does. Nobody is watching for the soundness bug, the edge case in a new compiler, the advisory with no one to patch it.</p>
+<h2 class="reveal">The <span class="accent">decision</span>, and the shape of it</h2>
+<p class="reveal">When an advisory names one of my dependencies, I ask one thing first: is the crate on the hot path, or just in the tree? serde_cbor was on the hot path. Every trie root flows through it. That settled the priority.</p>
+<p class="reveal">Then: can the fix preserve the format, or does it change the bytes? This is the question that decides whether a migration is a swap or a refactor. CBOR to CBOR is a swap. The wire format is a published standard, RFC 7049. For the types we use, any correct implementation encodes the same logical value to the same bytes: structs as maps, byte strings as byte strings, absent options as null. Moving to a different format, say bincode's fixed-width integers to postcard's varints, changes bytes, which changes hashes, which changes consensus. That is a refactor, and it gets its own issue and its own week. (We have one: #265, still open, still ignored on purpose.)</p>
+<p class="reveal">That call had company. RUSTSEC-2021-0127 itself names ciborium and minicbor as the original author's proposed replacements, and the migration path is well trodden. Other Rust projects have done exactly this swap, <code>serde_cbor 0.11</code> to <code>ciborium 0.2</code>, including the same <code>deny.toml</code> ignore removal. One of them even hit the same lockfile ripple I did, consolidating half 1.8.3 to 2.7.1. The API mapped nearly one to one. <code>serde_cbor::to_vec</code> became <code>ciborium::<code>into_writer</code></code> into a Vec; <code>serde_cbor::from_slice</code> became <code>ciborium::<code>from_reader</code></code>. Two call sites. The diff in <code>ipld_codec.rs</code> was ten lines. One honest cost, from the published benchmarks: the old crate still wins some encode/decode micro-benchmarks. We encode trie nodes, not market data, so maintenance won over nanoseconds.</p>
+<h2 class="reveal">The part I actually <span class="accent">worried</span> about</h2>
+<p class="reveal">"Nearly one to one" is doing a lot of work in that paragraph. Two CBOR libraries can both be correct and still disagree on bytes in corners: float encoding, map key ordering, how they handle indefinite-length items. If ciborium encoded our node structs even slightly differently, every trie root in the test suite would shift, and worse, we would have no principled way to know which encoding was "right." They would just be different.</p>
+<p class="reveal">This was not a hypothetical worry. A few years back, an r/rust thread caught serde_cbor emitting non-minimal integer encodings: an extra byte where a minimal encoder writes none. Same logical value, different bytes, exactly the failure mode I was afraid of. So before trusting the test suite, I ran both encoders side by side on every payload shape we use: leaf, extension, branch, pointer, small values and 70KB ones alike. The bytes came out identical, every one. The check was the point, not the result.</p>
+<p class="reveal">So the migration had an oracle, and the oracle was not the compiler. It was the determinism tests: root_hash_deterministic, the trie merge convergence tests, the proof verification tests, all of which hash the actual CBOR bytes. If the bytes had moved, the roots would have moved, and the suite would have caught it. I carried one caveat in from another project's migration notes. If you need canonical CBOR with sorted map keys, neither crate sorts for you. You have to handle that yourself. Our payloads are structs, which serialize as maps in field order, so the encoding was already deterministic. All 521 workspace tests passed, fmt and clippy clean, and serde_cbor is now fully out of the dependency tree. The ignore entry is deleted, which means the deny gate is guarding this for us from now on: if ciborium ever rots the same way, CI will tell us instead of a human remembering to check.</p>
+<h2 class="reveal">Takeaway: a <span class="accent">checklist</span> for unmaintained-crate advisories</h2>
+<p class="reveal">If an advisory names a crate in your tree, this is the sequence that worked:</p>
+<ol class="reveal">
+<li>Locate it precisely. Is it on the hot path (hashes, wire bytes, auth) or just in the tree? Hot path means priority; in-tree means schedule.</li>
+<li>Ask whether the fix preserves the format. Same-format swaps (CBOR to CBOR) are verifiable by tests. Format changes (bincode to postcard) are protocol changes in disguise; treat them as such.</li>
+<li>Find your oracle before you migrate. You need a test that observes the bytes. Round-trip tests only check the types; they pass even when the encoding changes completely. Determinism tests, golden vectors, and hash assertions are what catch a byte-level drift.</li>
+<li>Delete the ignore when you fix the code. The advisory database is a sensor. An ignore entry you leave behind after fixing the problem is a blindfold you forgot you were wearing.</li>
+</ol>
+<p class="reveal">One thread is still open, deliberately. The bincode migration (#265) changes wire bytes, so it is a protocol decision with a migration story, not a weekend swap. And the hickory-proto DoS (#266) arrives transitively through libp2p, which means the fix is a major version upgrade of the networking stack, with its own API churn to absorb. Both are still on the ignore list, still documented, still waiting their turn. That is what the list is for.</p>
+
+            <div class="reveal" style="margin-top:64px">
+              <a class="btn btn-primary" href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener"><span>READ THE CODE</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-text">MOSSY<span>MESH</span></span>
+          <p>Decentralized offline compute mesh.<br />Built in the open. Owned by no one.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="/">Home</a>
+          <a href="/blog/">Blog</a>
+          <a href="https://github.com/movahedi-ca/MossyMesh" target="_blank" rel="noopener">GitHub</a>
+          <a href="/developers.html">Developers</a>
+          <a href="/api.html">API</a>
+          <a href="/openapi.yaml">OpenAPI</a>
+        </nav>
+        <div class="footer-meta">
+          <span>© 2026 MossyMesh</span>
+          <span class="footer-status"><span class="pulse-dot" aria-hidden="true"></span> SITE ONLINE</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module">
+    // Minimal reveal-on-scroll for the article page (no terminal/globe here).
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    els.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>

@@ -19,6 +19,7 @@ export default defineConfig({
         deepdive: resolve(rootDir, "deep-dive.html"),
         "blog/index": resolve(rootDir, "blog/index.html"),
         "blog/why-determinism-matters": resolve(rootDir, "blog/why-determinism-matters.html"),
+        "blog/replacing-serde-cbor": resolve(rootDir, "blog/replacing-serde-cbor.html"),
       },
       external: ['three'],
     },
